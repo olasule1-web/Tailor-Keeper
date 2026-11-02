@@ -68,11 +68,11 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,san
 <!-- 1. AUTH SCREEN -->
 <div id="authScreen">
   <div style="display:flex;gap:8px;position:absolute;top:16px;right:16px">
-    <button class="lang-btn" type="button" onclick="window.toggleLang()">EN / HA</button>
+    <button class="lang-btn" id="authLangBtn" type="button" onclick="window.toggleLang()">EN</button>
   </div>
   <div style="width:72px;height:72px;background:#22C55E;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:38px;margin-top:20px;box-shadow:0 0 25px rgba(34,197,94,.6)">✂️</div>
   <div style="color:white;font-weight:bold;font-size:24px;margin-top:12px">Tailor Keeper</div>
-  <div style="color:#94a3b8;font-size:13px;margin-top:2px">Order, School Bulk, Expenses and POS</div>
+  <div id="authSubtitle" style="color:#94a3b8;font-size:13px;margin-top:2px">Order, School Bulk, Expenses and POS</div>
 
   <div class="lock-box">
     <div class="lock-tabs">
@@ -86,12 +86,12 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,san
     <input id="l_pass" type="password" class="inp-dark" placeholder="Password (6 or more letters/digits)">
     
     <button class="btn-lock green" type="button" id="authSubmitBtn" onclick="window.handleAuth()">Enter →</button>
-    <button class="btn-lock white" type="button" onclick="window.triggerPWAInstall()">📲 Install App on Phone</button>
+    <button class="btn-lock white" type="button" id="pwaInstallBtn" onclick="window.triggerPWAInstall()">📲 Install App on Phone</button>
     
     <div id="steps" class="steps-box hide">
-      <b>Install on Phone:</b><br>
-      • <b>Android:</b> Tap Chrome 3 dots (⋮) → <b>Install App</b>.<br>
-      • <b>iPhone:</b> Tap Share (<span style="font-size:16px">⎙</span>) → <b>Add to Home Screen</b>.
+      <b id="installHeader">Install on Phone:</b><br>
+      • <span id="installAndroid"><b>Android:</b> Tap Chrome 3 dots (⋮) → <b>Install App</b>.</span><br>
+      • <span id="installIos"><b>iPhone:</b> Tap Share (<span style="font-size:16px">⎙</span>) → <b>Add to Home Screen</b>.</span>
     </div>
     <div id="authMsg" style="color:#f97316;font-size:13px;text-align:center;margin-top:10px"></div>
   </div>
@@ -104,12 +104,12 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,san
       <div class="logo-sq">✂️</div>
       <div>
         <b id="topShopName" style="font-size:15px;color:#0f172a">Luky Tailors</b>
-        <div class="small">Tailor Hub (Cloud Synced)</div>
+        <div id="topSubtitle" class="small">Tailor Hub (Cloud Synced)</div>
       </div>
     </div>
     <div style="display:flex;gap:6px;align-items:center">
-      <button class="lang-btn" type="button" onclick="window.toggleLang()">HA / EN</button>
-      <button type="button" onclick="window.logout()" class="lang-btn" style="color:#ef4444">Logout</button>
+      <button class="lang-btn" id="dashLangBtn" type="button" onclick="window.toggleLang()">EN</button>
+      <button type="button" id="logoutBtn" onclick="window.logout()" class="lang-btn" style="color:#ef4444">Logout</button>
     </div>
   </div>
 
@@ -117,20 +117,20 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,san
     <!-- Financial Metric Cards -->
     <div class="grid4" style="margin-bottom:12px">
       <div class="card">
-        <div class="small">Total Sales</div>
+        <div class="small" id="lbl_totalSales">Total Sales</div>
         <b id="m_total" style="font-size:16px">₦0</b>
         <div id="m_jobs" style="font-size:10px;color:#64748b;margin-top:2px">0 Total Jobs</div>
       </div>
       <div class="card">
-        <div class="small">Received</div>
+        <div class="small" id="lbl_received">Received</div>
         <b id="m_received" style="font-size:16px;color:#16a34a">₦0</b>
       </div>
       <div class="card">
-        <div class="small">Outstanding</div>
+        <div class="small" id="lbl_outstanding">Outstanding</div>
         <b id="m_debt" style="font-size:16px;color:#f97316">₦0</b>
       </div>
       <div class="card">
-        <div class="small">Real Profit</div>
+        <div class="small" id="lbl_profit">Real Profit</div>
         <b id="m_profit" style="font-size:16px;color:#0284c7">₦0</b>
         <div id="m_exp" style="font-size:10px;color:#64748b;margin-top:2px">Exp: ₦0</div>
       </div>
@@ -163,6 +163,280 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,san
       <div id="m_cust_sub" style="font-size:11px;color:#94a3b8">Details</div>
     </div>
     <button type="button" id="measureLockBtn" onclick="window.toggleMeasureEdit()" style="margin-left:auto;width:36px;height:36px;background:#10b981;border-radius:50%;border:none;cursor:pointer">✏️</button>
+  </div>
+  <div id="measureBody" style="padding:12px;max-width:480px;margin:0 auto;padding-bottom:100px"></div>
+  <div style="position:fixed;bottom:0;left:0;right:0;padding:12px;background:#0f172a;border-top:1px solid #1e293b">
+    <div style="max-width:480px;margin:0 auto" id="measureBottomBar"></div>
+  </div>
+</div>
+
+<div id="modal" class="modal"><div id="modalBox" class="modal-box"></div></div>
+
+<!-- FIREBASE SDK & APPLICATION ENGINE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { 
+  getFirestore, 
+  collection, 
+  doc, 
+  setDoc, 
+  getDoc, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  query, 
+  where, 
+  onSnapshot 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDXp1IbejZRUdk2OxTezvi25ZDdeB5rLqQ",
+  authDomain: "tailor-keeper.firebaseapp.com",
+  projectId: "tailor-keeper",
+  storageBucket: "tailor-keeper.firebasestorage.app",
+  messagingSenderId: "791863119393",
+  appId: "1:791863119393:web:494c752e472e88dd671d60"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// In-line Service Worker for PWA
+if ('serviceWorker' in navigator) {
+  const swCode = `self.addEventListener('fetch', e => { e.respondWith(fetch(e.request).catch(() => new Response('Offline'))); });`;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+}
+
+let deferredPrompt = null;
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+window.triggerPWAInstall = () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+  } else {
+    document.getElementById("steps").classList.toggle("hide");
+  }
+};
+
+// Language Dictionary
+let currentLang = "en";
+try {
+  const savedL = localStorage.getItem("tk_lang");
+  if (savedL) currentLang = savedL;
+} catch(e) {}
+
+const i18n = {
+  en: {
+    toggleBtn: "HA",
+    authSubtitle: "Order, School Bulk, Expenses and POS",
+    login: "Login",
+    signup: "Sign Up",
+    welcome: "Welcome back",
+    createShopTitle: "Create your shop",
+    shopPlaceholder: "Shop name, example: Luky Tailors",
+    phonePlaceholder: "Phone number, example: 08031234567",
+    passPlaceholder: "Password (6 or more letters/digits)",
+    enterBtn: "Enter →",
+    createShopBtn: "Create Shop",
+    installBtn: "📲 Install App on Phone",
+    installHeader: "Install on Phone:",
+    installAndroid: "<b>Android:</b> Tap Chrome 3 dots (⋮) → <b>Install App</b>.",
+    installIos: "<b>iPhone:</b> Tap Share (<span style=\"font-size:16px\">⎙</span>) → <b>Add to Home Screen</b>.",
+    topSubtitle: "Tailor Hub (Cloud Synced)",
+    logout: "Logout",
+    totalSales: "Total Sales",
+    received: "Received",
+    outstanding: "Outstanding",
+    profit: "Real Profit",
+    jobsCount: "Jobs",
+    expAbbr: "Exp",
+    searchPlaceholder: "Search orders...",
+    tabCustomers: "Customers",
+    tabBulk: "Bulk / School",
+    tabReport: "Report",
+    tabSell: "Quick Sell",
+    custOrdersHeader: "Customer Orders",
+    newOrderBtn: "+ New Order",
+    newBulkBtn: "+ New Bulk Contract",
+    bulkOrdersHeader: "School & Institutional Contracts",
+    pieces: "Pieces",
+    due: "Due",
+    productionProgress: "Production",
+    sewn: "sewn",
+    ready: "ready",
+    contractVal: "Contract",
+    costVal: "Cost",
+    profitVal: "Profit",
+    netProfitVal: "Net Profit",
+    paidPct: "paid",
+    left: "left",
+    payBtn: "💰 Payment",
+    measureBtn: "📏 Measurements",
+    updateCountBtn: "✏️ Update Count",
+    reportHeader: "Firebase Cloud Report",
+    reportIndiv: "Individual Orders:",
+    reportBulk: "School Bulk Contracts:",
+    reportGross: "Total Gross Sales:",
+    reportExpenses: "Total Expenses:",
+    reportNet: "Net Profit:",
+    reportMargin: "Profit Margin:",
+    reportCollected: "Cash Collected:",
+    reportDebt: "Outstanding Debt:",
+    quickSaleHeader: "⚡ Direct POS / Quick Sale",
+    quickClient: "Client Name (or Walk-in)",
+    quickGarment: "Garment e.g. Ready-Made Kaftan, Fabric 4yd",
+    quickSellingPrice: "Selling Price ₦",
+    quickCost: "Cost / Expense ₦",
+    quickAmountPaid: "Amount Paid ₦",
+    quickCalcProfit: "Calculated Profit",
+    quickSaveBtn: "Record & Sync Instant Sale →",
+    upperBody: "📏 Upper Body",
+    bustChest: "Bust / Chest",
+    shoulder: "Shoulder",
+    sleeve: "Sleeve",
+    topLength: "Top Length",
+    lowerBody: "📏 Lower Body",
+    waist: "Waist",
+    hip: "Hip",
+    trouserLength: "Trouser / Skirt Length",
+    extra: "📏 Extra",
+    neck: "Neck",
+    customFields: "📐 Custom Fields",
+    addBtn: "+ Add",
+    noCustom: "No custom fields recorded",
+    saveToFirebase: "Save to Firebase",
+    editMeasurements: "Edit Measurements",
+    saveCloudCustomer: "Save Customer to Cloud →",
+    confirmBulkContract: "Confirm Bulk Contract →",
+    cancel: "Cancel",
+    recordPaymentTitle: "💰 Record Payment",
+    totalLbl: "Total",
+    balanceLeftLbl: "Balance Left",
+    amountPlaceholder: "Amount e.g. 5000",
+    clearAll: "Clear All",
+    syncPayment: "Sync Payment",
+    piecesPrompt: "Total pieces sewn so far out of",
+    deleteCustConfirm: "Delete this customer order from cloud records?",
+    deleteBulkConfirm: "Delete this bulk contract from cloud records?",
+    saveSuccess: "Measurements saved to cloud!",
+    enterValidAmount: "Enter valid amount",
+    enterValidPrice: "Enter valid selling price",
+    enterNameAlert: "Please enter customer name",
+    enterSchoolAlert: "Please enter school name",
+    enterValidPhone: "Please enter valid phone number.",
+    enterValidPass: "Password must be at least 6 characters.",
+    enterShopName: "Please enter shop name.",
+    processingMsg: "Processing, please wait...",
+    accountCreatedMsg: "Account created! Signing you in...",
+    phoneInUseMsg: "Phone already registered. Switch to Login.",
+    wrongCredsMsg: "Wrong phone number or password."
+  },
+  ha: {
+    toggleBtn: "EN",
+    authSubtitle: "Dinki, Kayan Makaranta, Kudaden Kashewa da POS",
+    login: "Shiga",
+    signup: "Yi Rajista",
+    welcome: "Barka da dawowa",
+    createShopTitle: "Bude sabon shago",
+    shopPlaceholder: "Sunan shago, misali: Luky Tailors",
+    phonePlaceholder: "Lambar waya, misali: 08031234567",
+    passPlaceholder: "Kalmar sirri (haruffa 6 ko sama)",
+    enterBtn: "Shiga →",
+    createShopBtn: "Bude Shago",
+    installBtn: "📲 Saka manhaja a waya",
+    installHeader: "Yadda ake sakawa a waya:",
+    installAndroid: "<b>Android:</b> Danna digo 3 a Chrome (⋮) → <b>Install App</b>.",
+    installIos: "<b>iPhone:</b> Danna Share (<span style=\"font-size:16px\">⎙</span>) → <b>Add to Home Screen</b>.",
+    topSubtitle: "Dakin Dinki (Kan Layi)",
+    logout: "Fita",
+    totalSales: "Jimillar Kudi",
+    received: "An Karba",
+    outstanding: "Bashi",
+    profit: "Riba",
+    jobsCount: "Odi",
+    expAbbr: "Kashi",
+    searchPlaceholder: "Nemo dinki...",
+    tabCustomers: "Abokan Ciniki",
+    tabBulk: "Dinkin Gungu",
+    tabReport: "Rahoto",
+    tabSell: "Sayarwa",
+    custOrdersHeader: "Odin Abokan Ciniki",
+    newOrderBtn: "+ Sabon Odi",
+    newBulkBtn: "+ Sabon Dinkin Gungu",
+    bulkOrdersHeader: "Kwantiragin Makarantu",
+    pieces: "Kaya",
+    due: "Ranar bayarwa",
+    productionProgress: "Aikin da aka yi",
+    sewn: "an dinka",
+    ready: "a shirye",
+    contractVal: "Kwantiragi",
+    costVal: "Kudi",
+    profitVal: "Riba",
+    netProfitVal: "Ribar Ainihi",
+    paidPct: "an biya",
+    left: "ragowa",
+    payBtn: "💰 Biya",
+    measureBtn: "📏 Aunawa",
+    updateCountBtn: "✏️ Gyara Adadi",
+    reportHeader: "Rahoton Kudi (Firebase)",
+    reportIndiv: "Odin Dai-dai:",
+    reportBulk: "Kwantiragin Makarantu:",
+    reportGross: "Jimillar Tallace-tallace:",
+    reportExpenses: "Kudaden Kashewa:",
+    reportNet: "Riba ta Ainihi:",
+    reportMargin: "Kason Riba:",
+    reportCollected: "Kudin da aka Karba:",
+    reportDebt: "Bashi:",
+    quickSaleHeader: "⚡ Sayarwa Nan Take / POS",
+    quickClient: "Sunan Mai Siya",
+    quickGarment: "Kayan da aka sayar (misali Kaftan, Yadi)",
+    quickSellingPrice: "Farashin Sayarwa ₦",
+    quickCost: "Kudin da aka Kashe ₦",
+    quickAmountPaid: "Kudin da aka Biya ₦",
+    quickCalcProfit: "Lissafin Riba",
+    quickSaveBtn: "Ajiye Sayarwa a Kan Layi →",
+    upperBody: "📏 Jikin Sama",
+    bustChest: "Kirji / Kafa",
+    shoulder: "Kafada",
+    sleeve: "Hannu",
+    topLength: "Tsayin Riga",
+    lowerBody: "📏 Jikin Kasa",
+    waist: "Gindi / Kwankwaso",
+    hip: "Duwawu",
+    trouserLength: "Tsayin Wando / Siket",
+    extra: "📏 Kari",
+    neck: "Wuya",
+    customFields: "📐 Karin Aunawa (Custom)",
+    addBtn: "+ Kara",
+    noCustom: "Babu wata auna da aka kara",
+    saveToFirebase: "Ajiye a Firebase",
+    editMeasurements: "Gyara Aunawa",
+    saveCloudCustomer: "Ajiye Abokin Ciniki a Kan Layi →",
+    confirmBulkContract: "Tabbatar da Kwantiragi →",
+    cancel: "Soke",
+    recordPaymentTitle: "💰 Kara Kudi",
+    totalLbl: "Jimla",
+    balanceLeftLbl: "Ragowar Bashi",
+    amountPlaceholder: "Adadi misali 5000",
+    clearAll: "Biyan Duka",
+    syncPayment: "Ajiye Biyan Kudi",
+    piecesPrompt: "Adadin kayan da aka dinka cikin",
+    deleteCustConfirm: "Ka tabbata kana son goge wannan odin?",
+    deleteBulkConfirm: "Ka tabbata kana son goge wannan kwantiragin?",
+    saveSuccess: "An ajiye auht:36px;background:#10b981;border-radius:50%;border:none;cursor:pointer">✏️</button>
   </div>
   <div id="measureBody" style="padding:12px;max-width:480px;margin:0 auto;padding-bottom:100px"></div>
   <div style="position:fixed;bottom:0;left:0;right:0;padding:12px;background:#0f172a;border-top:1px solid #1e293b">

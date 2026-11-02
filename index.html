@@ -436,75 +436,87 @@ const i18n = {
     piecesPrompt: "Adadin kayan da aka dinka cikin",
     deleteCustConfirm: "Ka tabbata kana son goge wannan odin?",
     deleteBulkConfirm: "Ka tabbata kana son goge wannan kwantiragin?",
-    saveSuccess: "An ajiye auht:36px;background:#10b981;border-radius:50%;border:none;cursor:pointer">✏️</button>
-  </div>
-  <div id="measureBody" style="padding:12px;max-width:480px;margin:0 auto;padding-bottom:100px"></div>
-  <div style="position:fixed;bottom:0;left:0;right:0;padding:12px;background:#0f172a;border-top:1px solid #1e293b">
-    <div style="max-width:480px;margin:0 auto" id="measureBottomBar"></div>
-  </div>
-</div>
-
-<div id="modal" class="modal"><div id="modalBox" class="modal-box"></div></div>
-
-<!-- FIREBASE SDK & APPLICATION ENGINE -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { 
-  getAuth, 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { 
-  getFirestore, 
-  collection, 
-  doc, 
-  setDoc, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  onSnapshot 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-// Your exact Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDXp1IbejZRUdk2OxTezvi25ZDdeB5rLqQ",
-  authDomain: "tailor-keeper.firebaseapp.com",
-  projectId: "tailor-keeper",
-  storageBucket: "tailor-keeper.firebasestorage.app",
-  messagingSenderId: "791863119393",
-  appId: "1:791863119393:web:494c752e472e88dd671d60"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// In-line Service Worker for PWA
-if ('serviceWorker' in navigator) {
-  const swCode = `self.addEventListener('fetch', e => { e.respondWith(fetch(e.request).catch(() => new Response('Offline'))); });`;
-  const blob = new Blob([swCode], { type: 'application/javascript' });
-  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
-}
-
-let deferredPrompt = null;
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-});
-
-window.triggerPWAInstall = () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
-  } else {
-    document.getElementById("steps").classList.toggle("hide");
+    saveSuccess: "An ajiye aunawa a kan layi!",
+    enterValidAmount: "Saka adadin da ya dace",
+    enterValidPrice: "Saka farashi mai ma'ana",
+    enterNameAlert: "Don Allah saka sunan abokin ciniki",
+    enterSchoolAlert: "Don Allah saka sunan makaranta",
+    enterValidPhone: "Saka lambar waya mai ma'ana.",
+    enterValidPass: "Kalmar sirri ta zama a kalla haruffa 6.",
+    enterShopName: "Don Allah saka sunan shago.",
+    processingMsg: "Ana aiki, dakata...",
+    accountCreatedMsg: "An bude asusu! Ana shiga...",
+    phoneInUseMsg: "An riga an yi amfani da wannan lambar. Koma 'Login'.",
+    wrongCredsMsg: "Lambar waya ko kalmar sirri ba daidai ba."
   }
 };
+
+const t = (k) => (i18n[currentLang] && i18n[currentLang][k]) || i18n["en"][k] || k;
+
+window.toggleLang = () => {
+  currentLang = currentLang === "en" ? "ha" : "en";
+  try { localStorage.setItem("tk_lang", currentLang); } catch(e) {}
+  updateStaticUI();
+  renderDashboard();
+  if (currentCustomer) renderMeasureView();
+};
+
+function updateStaticUI() {
+  const L = currentLang;
+  const authLangBtn = document.getElementById("authLangBtn");
+  const dashLangBtn = document.getElementById("dashLangBtn");
+  if (authLangBtn) authLangBtn.innerText = t("toggleBtn");
+  if (dashLangBtn) dashLangBtn.innerText = t("toggleBtn");
+
+  const authSubtitle = document.getElementById("authSubtitle");
+  if (authSubtitle) authSubtitle.innerText = t("authSubtitle");
+
+  const tabBtnLogin = document.getElementById("tabBtnLogin");
+  const tabBtnSignup = document.getElementById("tabBtnSignup");
+  if (tabBtnLogin) tabBtnLogin.innerText = t("login");
+  if (tabBtnSignup) tabBtnSignup.innerText = t("signup");
+
+  const authHeader = document.getElementById("authHeader");
+  if (authHeader) authHeader.innerText = authMode === 'login' ? t("welcome") : t("createShopTitle");
+
+  const l_shop = document.getElementById("l_shop");
+  const l_phone = document.getElementById("l_phone");
+  const l_pass = document.getElementById("l_pass");
+  if (l_shop) l_shop.placeholder = t("shopPlaceholder");
+  if (l_phone) l_phone.placeholder = t("phonePlaceholder");
+  if (l_pass) l_pass.placeholder = t("passPlaceholder");
+
+  const authSubmitBtn = document.getElementById("authSubmitBtn");
+  if (authSubmitBtn) authSubmitBtn.innerText = authMode === 'login' ? t("enterBtn") : t("createShopBtn");
+
+  const pwaInstallBtn = document.getElementById("pwaInstallBtn");
+  if (pwaInstallBtn) pwaInstallBtn.innerText = t("installBtn");
+
+  const installHeader = document.getElementById("installHeader");
+  const installAndroid = document.getElementById("installAndroid");
+  const installIos = document.getElementById("installIos");
+  if (installHeader) installHeader.innerText = t("installHeader");
+  if (installAndroid) installAndroid.innerHTML = t("installAndroid");
+  if (installIos) installIos.innerHTML = t("installIos");
+
+  const topSubtitle = document.getElementById("topSubtitle");
+  if (topSubtitle) topSubtitle.innerText = t("topSubtitle");
+
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) logoutBtn.innerText = t("logout");
+
+  const lbl_totalSales = document.getElementById("lbl_totalSales");
+  const lbl_received = document.getElementById("lbl_received");
+  const lbl_outstanding = document.getElementById("lbl_outstanding");
+  const lbl_profit = document.getElementById("lbl_profit");
+  if (lbl_totalSales) lbl_totalSales.innerText = t("totalSales");
+  if (lbl_received) lbl_received.innerText = t("received");
+  if (lbl_outstanding) lbl_outstanding.innerText = t("outstanding");
+  if (lbl_profit) lbl_profit.innerText = t("profit");
+
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) searchInput.placeholder = t("searchPlaceholder");
+}
 
 // Global App State
 let currentUser = null;
@@ -525,9 +537,9 @@ window.setAuthTab = (m) => {
   authMode = m;
   document.getElementById("tabBtnLogin").className = m === 'login' ? 'on' : '';
   document.getElementById("tabBtnSignup").className = m === 'signup' ? 'on' : '';
-  document.getElementById("authHeader").innerText = m === 'login' ? 'Welcome back' : 'Create your shop';
+  document.getElementById("authHeader").innerText = m === 'login' ? t("welcome") : t("createShopTitle");
   document.getElementById("l_shop").classList.toggle("hide", m === 'login');
-  document.getElementById("authSubmitBtn").innerText = m === 'login' ? 'Enter →' : 'Create Shop';
+  document.getElementById("authSubmitBtn").innerText = m === 'login' ? t("enterBtn") : t("createShopBtn");
 };
 
 window.handleAuth = async () => {
@@ -536,30 +548,30 @@ window.handleAuth = async () => {
   const shopName = document.getElementById("l_shop").value.trim();
   const msg = document.getElementById("authMsg");
 
-  if (!phone || phone.length < 7) { msg.innerText = "Please enter valid phone number."; return; }
-  if (!pass || pass.length < 6) { msg.innerText = "Password must be at least 6 characters."; return; }
+  if (!phone || phone.length < 7) { msg.innerText = t("enterValidPhone"); return; }
+  if (!pass || pass.length < 6) { msg.innerText = t("enterValidPass"); return; }
 
-  msg.innerText = "Processing, please wait...";
+  msg.innerText = t("processingMsg");
   const email = phoneToEmail(phone);
 
   try {
     if (authMode === "signup") {
-      if (!shopName) { msg.innerText = "Please enter shop name."; return; }
+      if (!shopName) { msg.innerText = t("enterShopName"); return; }
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
       await setDoc(doc(db, "shops", cred.user.uid), {
         shopName: shopName,
         phone: phone,
         createdAt: new Date().toISOString()
       });
-      msg.innerText = "Account created! Signing you in...";
+      msg.innerText = t("accountCreatedMsg");
     } else {
       await signInWithEmailAndPassword(auth, email, pass);
     }
   } catch (err) {
     if (err.code === "auth/email-already-in-use") {
-      msg.innerText = "Phone already registered. Switch to Login.";
+      msg.innerText = t("phoneInUseMsg");
     } else if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password") {
-      msg.innerText = "Wrong phone number or password.";
+      msg.innerText = t("wrongCredsMsg");
     } else {
       msg.innerText = err.message;
     }
@@ -570,12 +582,12 @@ window.logout = async () => {
   await signOut(auth);
 };
 
-window.switchTab = (t) => {
-  activeTab = t;
-  document.getElementById("t_cust").className = "tab " + (t === 'Customers' ? 'active' : '');
-  document.getElementById("t_bulk").className = "tab " + (t === 'Bulk' ? 'active' : '');
-  document.getElementById("t_repo").className = "tab " + (t === 'Report' ? 'active' : '');
-  document.getElementById("t_sell").className = "tab " + (t === 'Sell' ? 'active' : '');
+window.switchTab = (tTab) => {
+  activeTab = tTab;
+  document.getElementById("t_cust").className = "tab " + (tTab === 'Customers' ? 'active' : '');
+  document.getElementById("t_bulk").className = "tab " + (tTab === 'Bulk' ? 'active' : '');
+  document.getElementById("t_repo").className = "tab " + (tTab === 'Report' ? 'active' : '');
+  document.getElementById("t_sell").className = "tab " + (tTab === 'Sell' ? 'active' : '');
   renderDashboard();
 };
 
@@ -597,22 +609,24 @@ function renderDashboard() {
   }
 
   document.getElementById("m_total").innerText = "₦" + totalSales.toLocaleString();
-  document.getElementById("m_jobs").innerText = (cList.length + bList.length) + " Jobs";
+  document.getElementById("m_jobs").innerText = (cList.length + bList.length) + " " + t("jobsCount");
   document.getElementById("m_received").innerText = "₦" + received.toLocaleString();
   document.getElementById("m_debt").innerText = "₦" + debt.toLocaleString();
   document.getElementById("m_profit").innerText = "₦" + profit.toLocaleString();
-  document.getElementById("m_exp").innerText = "Exp: ₦" + expenses.toLocaleString();
+  document.getElementById("m_exp").innerText = t("expAbbr") + ": ₦" + expenses.toLocaleString();
 
-  document.getElementById("c_count").innerText = cList.length;
-  document.getElementById("b_count").innerText = bList.length;
+  document.getElementById("t_cust").innerHTML = `${t("tabCustomers")} (<span id="c_count">${cList.length}</span>)`;
+  document.getElementById("t_bulk").innerHTML = `${t("tabBulk")} (<span id="b_count">${bList.length}</span>)`;
+  document.getElementById("t_repo").innerText = t("tabReport");
+  document.getElementById("t_sell").innerText = t("tabSell");
 
   const container = document.getElementById("tabContainer");
   let h = "";
 
   if (activeTab === 'Customers') {
     h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
-    h += '<b style="font-size:14px">Customer Orders</b>';
-    h += '<button class="btn btn-green" type="button" onclick="window.openNewModal()">+ New Order</button></div>';
+    h += `<b style="font-size:14px">${t("custOrdersHeader")}</b>`;
+    h += `<button class="btn btn-green" type="button" onclick="window.openNewModal()">${t("newOrderBtn")}</button></div>`;
 
     for (const c of cList) {
       const rem = c.total - c.paid;
@@ -621,20 +635,20 @@ function renderDashboard() {
       h += '<div class="card">';
       h += `<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><b style="font-size:15px;color:#0f172a">${c.name}</b> <span class="badge" style="background:#e0f2fe;color:#0369a1">${c.type}</span><div class="small" style="margin-top:4px">📅 ${c.date} · 📞 ${c.phone || 'N/A'}</div></div><button type="button" onclick="window.delCustomer('${c.id}')" style="color:#ef4444;border:none;background:none;font-size:14px;cursor:pointer">✕</button></div>`;
       h += '<div style="background:#f8fafc;border-radius:10px;padding:8px 10px;margin:8px 0;font-size:12px;display:flex;justify-content:space-between">';
-      h += `<div>Total: <b>₦${c.total.toLocaleString()}</b></div>`;
-      h += `<div>Expense: <b style="color:#64748b">₦${(c.cost || 0).toLocaleString()}</b></div>`;
-      h += `<div>Profit: <b style="color:#0284c7">₦${c.profit.toLocaleString()}</b></div>`;
+      h += `<div>${t("totalLbl")}: <b>₦${c.total.toLocaleString()}</b></div>`;
+      h += `<div>${t("costVal")}: <b style="color:#64748b">₦${(c.cost || 0).toLocaleString()}</b></div>`;
+      h += `<div>${t("profitVal")}: <b style="color:#0284c7">₦${c.profit.toLocaleString()}</b></div>`;
       h += '</div>';
 
       h += `<div class="progress"><div class="progress-bar" style="width:${perc}%"></div></div>`;
-      h += `<div style="display:flex;justify-content:space-between;margin-top:4px" class="small"><span style="color:#16a34a;font-weight:600">₦${c.paid.toLocaleString()} (${perc}% paid)</span><span style="color:#f97316;font-weight:600">₦${rem.toLocaleString()} left</span></div>`;
-      h += `<div style="display:flex;gap:8px;margin-top:10px"><button class="btn" type="button" style="flex:1;background:#ecfdf5;color:#16a34a;border:1px solid #10b981" onclick="window.openPayModal('${c.id}', false)">💰 Payment</button><button class="btn btn-dark" type="button" style="flex:1.4" onclick="window.openMeasure('${c.id}')">📏 Measurements</button></div>`;
+      h += `<div style="display:flex;justify-content:space-between;margin-top:4px" class="small"><span style="color:#16a34a;font-weight:600">₦${c.paid.toLocaleString()} (${perc}% ${t("paidPct")})</span><span style="color:#f97316;font-weight:600">₦${rem.toLocaleString()} ${t("left")}</span></div>`;
+      h += `<div style="display:flex;gap:8px;margin-top:10px"><button class="btn" type="button" style="flex:1;background:#ecfdf5;color:#16a34a;border:1px solid #10b981" onclick="window.openPayModal('${c.id}', false)">${t("payBtn")}</button><button class="btn btn-dark" type="button" style="flex:1.4" onclick="window.openMeasure('${c.id}')">${t("measureBtn")}</button></div>`;
       h += '</div>';
     }
   } else if (activeTab === 'Bulk') {
     h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
-    h += '<b style="font-size:14px">School & Institutional Contracts</b>';
-    h += '<button class="btn btn-green" type="button" onclick="window.openNewBulkModal()">+ New Bulk Contract</button></div>';
+    h += `<b style="font-size:14px">${t("bulkOrdersHeader")}</b>`;
+    h += `<button class="btn btn-green" type="button" onclick="window.openNewBulkModal()">${t("newBulkBtn")}</button></div>`;
 
     for (const b of bList) {
       const bRem = b.total - b.paid;
@@ -642,40 +656,40 @@ function renderDashboard() {
       const prodPerc = b.qty > 0 ? Math.min(100, Math.round((b.completedQty / b.qty) * 100)) : 0;
 
       h += '<div class="card" style="border-left:4px solid #16a34a">';
-      h += `<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><b style="font-size:15px;color:#0f172a">🏫 ${b.school}</b> <span class="badge" style="background:#fef3c7;color:#b45309">${b.qty} Pieces</span><div class="small" style="margin-top:3px"><b>${b.type}</b> · 📞 ${b.contact || 'N/A'}</div><div class="small" style="color:#64748b">Due: <b style="color:#b45309">${b.deadline || 'N/A'}</b></div></div><button type="button" onclick="window.delBulk('${b.id}')" style="color:#ef4444;border:none;background:none;font-size:14px;cursor:pointer">✕</button></div>`;
-      h += `<div style="margin-top:8px"><div style="display:flex;justify-content:space-between" class="small"><span style="font-weight:600">Production: ${b.completedQty} of ${b.qty} sewn</span><span style="font-weight:600;color:#2563eb">${prodPerc}% ready</span></div><div class="progress"><div class="progress-bar" style="width:${prodPerc}%;background:#2563eb"></div></div></div>`;
+      h += `<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><b style="font-size:15px;color:#0f172a">🏫 ${b.school}</b> <span class="badge" style="background:#fef3c7;color:#b45309">${b.qty} ${t("pieces")}</span><div class="small" style="margin-top:3px"><b>${b.type}</b> · 📞 ${b.contact || 'N/A'}</div><div class="small" style="color:#64748b">${t("due")}: <b style="color:#b45309">${b.deadline || 'N/A'}</b></div></div><button type="button" onclick="window.delBulk('${b.id}')" style="color:#ef4444;border:none;background:none;font-size:14px;cursor:pointer">✕</button></div>`;
+      h += `<div style="margin-top:8px"><div style="display:flex;justify-content:space-between" class="small"><span style="font-weight:600">${t("productionProgress")}: ${b.completedQty} of ${b.qty} ${t("sewn")}</span><span style="font-weight:600;color:#2563eb">${prodPerc}% ${t("ready")}</span></div><div class="progress"><div class="progress-bar" style="width:${prodPerc}%;background:#2563eb"></div></div></div>`;
       h += '<div style="background:#f8fafc;border-radius:10px;padding:8px 10px;margin:8px 0;font-size:12px;display:flex;justify-content:space-between">';
-      h += `<div>Contract: <b>₦${b.total.toLocaleString()}</b></div>`;
-      h += `<div>Cost: <b style="color:#ef4444">₦${b.cost.toLocaleString()}</b></div>`;
-      h += `<div>Net Profit: <b style="color:#16a34a">₦${b.profit.toLocaleString()}</b></div>`;
+      h += `<div>${t("contractVal")}: <b>₦${b.total.toLocaleString()}</b></div>`;
+      h += `<div>${t("costVal")}: <b style="color:#ef4444">₦${b.cost.toLocaleString()}</b></div>`;
+      h += `<div>${t("netProfitVal")}: <b style="color:#16a34a">₦${b.profit.toLocaleString()}</b></div>`;
       h += '</div>';
 
       h += `<div class="progress"><div class="progress-bar" style="width:${bPerc}%"></div></div>`;
-      h += `<div style="display:flex;justify-content:space-between;margin-top:4px" class="small"><span style="color:#16a34a;font-weight:600">₦${b.paid.toLocaleString()} (${bPerc}% paid)</span><span style="color:#f97316;font-weight:600">₦${bRem.toLocaleString()} left</span></div>`;
-      h += `<div style="display:flex;gap:6px;margin-top:10px"><button class="btn" type="button" style="flex:1;background:#ecfdf5;color:#16a34a;border:1px solid #10b981" onclick="window.openPayModal('${b.id}', true)">💰 Payment</button><button class="btn btn-dark" type="button" style="flex:1" onclick="window.updateBulkCount('${b.id}')">✏️ Update Count</button></div>`;
+      h += `<div style="display:flex;justify-content:space-between;margin-top:4px" class="small"><span style="color:#16a34a;font-weight:600">₦${b.paid.toLocaleString()} (${bPerc}% ${t("paidPct")})</span><span style="color:#f97316;font-weight:600">₦${bRem.toLocaleString()} ${t("left")}</span></div>`;
+      h += `<div style="display:flex;gap:6px;margin-top:10px"><button class="btn" type="button" style="flex:1;background:#ecfdf5;color:#16a34a;border:1px solid #10b981" onclick="window.openPayModal('${b.id}', true)">${t("payBtn")}</button><button class="btn btn-dark" type="button" style="flex:1" onclick="window.updateBulkCount('${b.id}')">${t("updateCountBtn")}</button></div>`;
       h += '</div>';
     }
   } else if (activeTab === 'Report') {
     const margin = totalSales > 0 ? Math.round((profit / totalSales) * 100) : 0;
-    h += '<b style="font-size:14px">Firebase Cloud Report</b>';
+    h += `<b style="font-size:14px">${t("reportHeader")}</b>`;
     h += '<div class="card" style="margin-top:8px"><table class="table-ui">';
-    h += `<tr><td>Individual Orders:</td><td style="text-align:right">₦${cList.reduce((a,b)=>a+b.total,0).toLocaleString()}</td></tr>`;
-    h += `<tr><td>School Bulk Contracts:</td><td style="text-align:right">₦${bList.reduce((a,b)=>a+b.total,0).toLocaleString()}</td></tr>`;
-    h += `<tr style="border-top:2px solid #e2e8f0"><td><b>Total Gross Sales:</b></td><td style="text-align:right;font-weight:bold">₦${totalSales.toLocaleString()}</td></tr>`;
-    h += `<tr><td>Total Expenses:</td><td style="text-align:right;font-weight:bold;color:#ef4444">- ₦${expenses.toLocaleString()}</td></tr>`;
-    h += `<tr><td><b>Net Profit:</b></td><td style="text-align:right;font-weight:bold;color:#16a34a">₦${profit.toLocaleString()}</td></tr>`;
-    h += `<tr><td>Profit Margin:</td><td style="text-align:right;font-weight:bold;color:#0284c7">${margin}%</td></tr>`;
-    h += `<tr><td>Cash Collected:</td><td style="text-align:right;font-weight:bold;color:#16a34a">₦${received.toLocaleString()}</td></tr>`;
-    h += `<tr><td>Outstanding Debt:</td><td style="text-align:right;font-weight:bold;color:#f97316">₦${debt.toLocaleString()}</td></tr>`;
+    h += `<tr><td>${t("reportIndiv")}</td><td style="text-align:right">₦${cList.reduce((a,b)=>a+b.total,0).toLocaleString()}</td></tr>`;
+    h += `<tr><td>${t("reportBulk")}</td><td style="text-align:right">₦${bList.reduce((a,b)=>a+b.total,0).toLocaleString()}</td></tr>`;
+    h += `<tr style="border-top:2px solid #e2e8f0"><td><b>${t("reportGross")}</b></td><td style="text-align:right;font-weight:bold">₦${totalSales.toLocaleString()}</td></tr>`;
+    h += `<tr><td>${t("reportExpenses")}</td><td style="text-align:right;font-weight:bold;color:#ef4444">- ₦${expenses.toLocaleString()}</td></tr>`;
+    h += `<tr><td><b>${t("reportNet")}</b></td><td style="text-align:right;font-weight:bold;color:#16a34a">₦${profit.toLocaleString()}</td></tr>`;
+    h += `<tr><td>${t("reportMargin")}</td><td style="text-align:right;font-weight:bold;color:#0284c7">${margin}%</td></tr>`;
+    h += `<tr><td>${t("reportCollected")}</td><td style="text-align:right;font-weight:bold;color:#16a34a">₦${received.toLocaleString()}</td></tr>`;
+    h += `<tr><td>${t("reportDebt")}</td><td style="text-align:right;font-weight:bold;color:#f97316">₦${debt.toLocaleString()}</td></tr>`;
     h += '</table></div>';
   } else if (activeTab === 'Sell') {
-    h += '<b style="font-size:14px">⚡ Direct POS / Quick Sale</b>';
+    h += `<b style="font-size:14px">${t("quickSaleHeader")}</b>`;
     h += '<div class="card" style="margin-top:8px">';
-    h += '<input id="q_name" class="inp-light" placeholder="Client Name (or Walk-in)">';
-    h += '<input id="q_type" class="inp-light" placeholder="Garment e.g. Ready-Made Kaftan, Fabric 4yd">';
-    h += '<div class="grid2"><div><span class="small">Selling Price ₦</span><input id="q_total" type="number" oninput="window.calcQuickProfit()" class="inp-light" placeholder="0"></div><div><span class="small">Cost / Expense ₦</span><input id="q_cost" type="number" oninput="window.calcQuickProfit()" class="inp-light" placeholder="0"></div></div>';
-    h += '<div class="grid2"><div><span class="small">Amount Paid ₦</span><input id="q_paid" type="number" class="inp-light" placeholder="0"></div><div><span class="small">Calculated Profit</span><div id="q_profit_box" style="padding:10px;background:#f8fafc;border-radius:10px;font-weight:bold;font-size:13px;color:#16a34a">₦0</div></div></div>';
-    h += '<button class="btn btn-green" type="button" style="width:100%;padding:13px;margin-top:6px" onclick="window.saveQuickSell()">Record & Sync Instant Sale →</button></div>';
+    h += `<input id="q_name" class="inp-light" placeholder="${t("quickClient")}">`;
+    h += `<input id="q_type" class="inp-light" placeholder="${t("quickGarment")}">`;
+    h += `<div class="grid2"><div><span class="small">${t("quickSellingPrice")}</span><input id="q_total" type="number" oninput="window.calcQuickProfit()" class="inp-light" placeholder="0"></div><div><span class="small">${t("quickCost")}</span><input id="q_cost" type="number" oninput="window.calcQuickProfit()" class="inp-light" placeholder="0"></div></div>`;
+    h += `<div class="grid2"><div><span class="small">${t("quickAmountPaid")}</span><input id="q_paid" type="number" class="inp-light" placeholder="0"></div><div><span class="small">${t("quickCalcProfit")}</span><div id="q_profit_box" style="padding:10px;background:#f8fafc;border-radius:10px;font-weight:bold;font-size:13px;color:#16a34a">₦0</div></div></div>`;
+    h += `<button class="btn btn-green" type="button" style="width:100%;padding:13px;margin-top:6px" onclick="window.saveQuickSell()">${t("quickSaveBtn")}</button></div>`;
   }
 
   container.innerHTML = h;
@@ -706,30 +720,30 @@ window.toggleMeasureEdit = () => {
 function renderMeasureView() {
   const c = currentCustomer;
   document.getElementById("m_cust_name").innerText = c.name;
-  document.getElementById("m_cust_sub").innerText = `${c.type} · Cost: ₦${(c.cost||0)} · Total: ₦${c.total}`;
+  document.getElementById("m_cust_sub").innerText = `${c.type} · ${t("costVal")}: ₦${(c.cost||0)} · ${t("totalLbl")}: ₦${c.total}`;
   document.getElementById("measureLockBtn").innerText = measureEditing ? "🔒" : "✏️";
   document.getElementById("measureLockBtn").style.background = measureEditing ? "#f97316" : "#10b981";
 
   const editAttr = measureEditing ? "" : "disabled";
   let h = "";
 
-  h += '<div class="m-card"><b>📏 Upper Body</b><div class="grid2" style="margin-top:10px">';
-  h += `<div><div class="small" style="color:#94a3b8">Bust / Chest</div><input id="m_bust" value="${c.bust||''}" ${editAttr} class="m-inp"></div>`;
-  h += `<div><div class="small" style="color:#94a3b8">Shoulder</div><input id="m_shoulder" value="${c.shoulder||''}" ${editAttr} class="m-inp"></div>`;
-  h += `<div><div class="small" style="color:#94a3b8">Sleeve</div><input id="m_sleeve" value="${c.sleeve||''}" ${editAttr} class="m-inp"></div>`;
-  h += `<div><div class="small" style="color:#94a3b8">Top Length</div><input id="m_topLen" value="${c.topLen||''}" ${editAttr} class="m-inp"></div>`;
+  h += `<div class="m-card"><b>${t("upperBody")}</b><div class="grid2" style="margin-top:10px">`;
+  h += `<div><div class="small" style="color:#94a3b8">${t("bustChest")}</div><input id="m_bust" value="${c.bust||''}" ${editAttr} class="m-inp"></div>`;
+  h += `<div><div class="small" style="color:#94a3b8">${t("shoulder")}</div><input id="m_shoulder" value="${c.shoulder||''}" ${editAttr} class="m-inp"></div>`;
+  h += `<div><div class="small" style="color:#94a3b8">${t("sleeve")}</div><input id="m_sleeve" value="${c.sleeve||''}" ${editAttr} class="m-inp"></div>`;
+  h += `<div><div class="small" style="color:#94a3b8">${t("topLength")}</div><input id="m_topLen" value="${c.topLen||''}" ${editAttr} class="m-inp"></div>`;
   h += '</div></div>';
 
-  h += '<div class="m-card"><b>📏 Lower Body</b><div class="grid2" style="margin-top:10px">';
-  h += `<div><div class="small" style="color:#94a3b8">Waist</div><input id="m_waist" value="${c.waist||''}" ${editAttr} class="m-inp"></div>`;
-  h += `<div><div class="small" style="color:#94a3b8">Hip</div><input id="m_hip" value="${c.hip||''}" ${editAttr} class="m-inp"></div>`;
-  h += `<div style="grid-column:span 2"><div class="small" style="color:#94a3b8">Trouser / Skirt Length</div><input id="m_trouser" value="${c.trouser||''}" ${editAttr} class="m-inp"></div>`;
+  h += `<div class="m-card"><b>${t("lowerBody")}</b><div class="grid2" style="margin-top:10px">`;
+  h += `<div><div class="small" style="color:#94a3b8">${t("waist")}</div><input id="m_waist" value="${c.waist||''}" ${editAttr} class="m-inp"></div>`;
+  h += `<div><div class="small" style="color:#94a3b8">${t("hip")}</div><input id="m_hip" value="${c.hip||''}" ${editAttr} class="m-inp"></div>`;
+  h += `<div style="grid-column:span 2"><div class="small" style="color:#94a3b8">${t("trouserLength")}</div><input id="m_trouser" value="${c.trouser||''}" ${editAttr} class="m-inp"></div>`;
   h += '</div></div>';
 
-  h += '<div class="m-card"><b>📏 Extra</b><div style="margin-top:10px">';
-  h += `<div><div class="small" style="color:#94a3b8">Neck</div><input id="m_neck" value="${c.neck||''}" ${editAttr} class="m-inp"></div>`;
+  h += `<div class="m-card"><b>${t("extra")}</b><div style="margin-top:10px">`;
+  h += `<div><div class="small" style="color:#94a3b8">${t("neck")}</div><input id="m_neck" value="${c.neck||''}" ${editAttr} class="m-inp"></div>`;
   h += '<div style="margin-top:16px;border-top:1px solid #334155;padding-top:12px">';
-  h += `<div style="display:flex;justify-content:space-between;align-items:center"><b style="color:#10b981">📐 Custom Fields</b>${measureEditing ? '<button type="button" onclick="window.addCustomField()" class="btn btn-green" style="padding:4px 10px;font-size:10px">+ Add</button>' : ''}</div>`;
+  h += `<div style="display:flex;justify-content:space-between;align-items:center"><b style="color:#10b981">${t("customFields")}</b>${measureEditing ? `<button type="button" onclick="window.addCustomField()" class="btn btn-green" style="padding:4px 10px;font-size:10px">${t("addBtn")}</button>` : ''}</div>`;
 
   if (!c.custom) c.custom = [];
   for (let j = 0; j < c.custom.length; j++) {
@@ -739,16 +753,16 @@ function renderMeasureView() {
     if (measureEditing) { h += `<button type="button" onclick="window.delCustomField(${j})" style="width:28px;background:#ef4444;border:none;border-radius:8px;color:white;cursor:pointer">✕</button>`; }
     h += '</div>';
   }
-  if (c.custom.length === 0) { h += '<div class="small" style="text-align:center;padding:12px;color:#64748b">No custom fields recorded</div>'; }
+  if (c.custom.length === 0) { h += `<div class="small" style="text-align:center;padding:12px;color:#64748b">${t("noCustom")}</div>`; }
   h += '</div></div>';
 
   document.getElementById("measureBody").innerHTML = h;
 
   const bar = document.getElementById("measureBottomBar");
   if (measureEditing) {
-    bar.innerHTML = '<button class="btn btn-green" type="button" style="width:100%;padding:14px" onclick="window.saveMeasurements()">Save to Firebase</button>';
+    bar.innerHTML = `<button class="btn btn-green" type="button" style="width:100%;padding:14px" onclick="window.saveMeasurements()">${t("saveToFirebase")}</button>`;
   } else {
-    bar.innerHTML = '<button class="btn" type="button" style="width:100%;padding:14px;background:#1e293b;color:#10b981;border:1px solid #10b981" onclick="window.toggleMeasureEdit()">Edit Measurements</button>';
+    bar.innerHTML = `<button class="btn" type="button" style="width:100%;padding:14px;background:#1e293b;color:#10b981;border:1px solid #10b981" onclick="window.toggleMeasureEdit()">${t("editMeasurements")}</button>`;
   }
 }
 
@@ -794,26 +808,26 @@ window.saveMeasurements = async () => {
 
   measureEditing = false;
   renderMeasureView();
-  alert("Measurements saved to cloud!");
+  alert(t("saveSuccess"));
 };
 
 // Modals & Creation
 window.openNewModal = () => {
-  let h = '<b>✂️ + New Order</b><div style="margin-top:10px">';
-  h += '<input id="n_name" class="inp-light" placeholder="Customer Name *">';
-  h += '<input id="n_type" class="inp-light" placeholder="Garment Type (e.g. 2 Kaftan, Agbada)">';
-  h += '<div class="grid2"><div><span class="small">Total Price ₦</span><input id="n_total" type="number" class="inp-light" placeholder="25000"></div><div><span class="small">Cost / Expense ₦</span><input id="n_cost" type="number" class="inp-light" placeholder="5400"></div></div>';
-  h += '<div class="grid2"><div><span class="small">Deposit Paid ₦</span><input id="n_paid" type="number" class="inp-light" placeholder="10000"></div><div><span class="small">Phone</span><input id="n_phone" class="inp-light" placeholder="080..."></div></div>';
-  h += `<span class="small">Order Date</span><input id="n_date" type="date" value="${new Date().toISOString().slice(0,10)}" class="inp-light">`;
-  h += '<button class="btn btn-green" type="button" style="width:100%;padding:14px;margin-top:4px" onclick="window.saveNewCustomer()">Save Customer to Cloud →</button>';
-  h += '<button class="btn" type="button" style="width:100%;margin-top:8px;background:#eee" onclick="window.closeModal()">Cancel</button></div>';
+  let h = `<b>✂️ ${t("newOrderBtn")}</b><div style="margin-top:10px">`;
+  h += `<input id="n_name" class="inp-light" placeholder="${currentLang === 'ha' ? 'Sunan Abokin Ciniki *' : 'Customer Name *'}">`;
+  h += `<input id="n_type" class="inp-light" placeholder="${currentLang === 'ha' ? 'Nau\'in Kaya (misali 2 Kaftan, Agbada)' : 'Garment Type (e.g. 2 Kaftan, Agbada)'}">`;
+  h += `<div class="grid2"><div><span class="small">${currentLang === 'ha' ? 'Farashin Dinki ₦' : 'Total Price ₦'}</span><input id="n_total" type="number" class="inp-light" placeholder="25000"></div><div><span class="small">${currentLang === 'ha' ? 'Kudin da aka Kashe ₦' : 'Cost / Expense ₦'}</span><input id="n_cost" type="number" class="inp-light" placeholder="5400"></div></div>`;
+  h += `<div class="grid2"><div><span class="small">${currentLang === 'ha' ? 'Kudin da aka Biya ₦' : 'Deposit Paid ₦'}</span><input id="n_paid" type="number" class="inp-light" placeholder="10000"></div><div><span class="small">${currentLang === 'ha' ? 'Waya' : 'Phone'}</span><input id="n_phone" class="inp-light" placeholder="080..."></div></div>`;
+  h += `<span class="small">${currentLang === 'ha' ? 'Ranar Odi' : 'Order Date'}</span><input id="n_date" type="date" value="${new Date().toISOString().slice(0,10)}" class="inp-light">`;
+  h += `<button class="btn btn-green" type="button" style="width:100%;padding:14px;margin-top:4px" onclick="window.saveNewCustomer()">${t("saveCloudCustomer")}</button>`;
+  h += `<button class="btn" type="button" style="width:100%;margin-top:8px;background:#eee" onclick="window.closeModal()">${t("cancel")}</button></div>`;
   document.getElementById("modalBox").innerHTML = h;
   document.getElementById("modal").style.display = "flex";
 };
 
 window.saveNewCustomer = async () => {
   const name = document.getElementById("n_name").value.trim();
-  if (!name) { alert("Please enter customer name"); return; }
+  if (!name) { alert(t("enterNameAlert")); return; }
   const type = document.getElementById("n_type").value.trim() || "Standard Order";
   const total = parseFloat(document.getElementById("n_total").value) || 0;
   const cost = parseFloat(document.getElementById("n_cost").value) || 0;
@@ -840,21 +854,21 @@ window.saveNewCustomer = async () => {
 };
 
 window.openNewBulkModal = () => {
-  let h = '<b>🏫 + New Bulk Contract</b><div style="margin-top:10px">';
-  h += '<input id="b_school" class="inp-light" placeholder="School / Organization Name *">';
-  h += '<input id="b_type" class="inp-light" placeholder="Uniform Type (e.g. Check Pinafore, Shirts)">';
-  h += '<div class="grid2"><div><span class="small">Quantity (Pcs)</span><input id="b_qty" type="number" class="inp-light" placeholder="100"></div><div><span class="small">Price Per Piece ₦</span><input id="b_unit_price" type="number" class="inp-light" placeholder="7000"></div></div>';
-  h += '<div class="grid2"><div><span class="small">Cost Per Piece ₦</span><input id="b_unit_cost" type="number" class="inp-light" placeholder="4000"></div><div><span class="small">Deposit Paid ₦</span><input id="b_paid" type="number" class="inp-light" placeholder="300000"></div></div>';
-  h += '<div class="grid2"><div><span class="small">Contact Phone</span><input id="b_contact" class="inp-light" placeholder="080..."></div><div><span class="small">Delivery Deadline</span><input id="b_deadline" type="date" class="inp-light"></div></div>';
-  h += '<button class="btn btn-green" type="button" style="width:100%;padding:14px;margin-top:4px" onclick="window.saveNewBulkOrder()">Confirm Bulk Contract →</button>';
-  h += '<button class="btn" type="button" style="width:100%;margin-top:8px;background:#eee" onclick="window.closeModal()">Cancel</button></div>';
+  let h = `<b>🏫 ${t("newBulkBtn")}</b><div style="margin-top:10px">`;
+  h += `<input id="b_school" class="inp-light" placeholder="${currentLang === 'ha' ? 'Sunan Makaranta *' : 'School / Organization Name *'}">`;
+  h += `<input id="b_type" class="inp-light" placeholder="${currentLang === 'ha' ? 'Nau\'in Uniform' : 'Uniform Type (e.g. Check Pinafore, Shirts)'}">`;
+  h += `<div class="grid2"><div><span class="small">${currentLang === 'ha' ? 'Adadin Kaya (Pcs)' : 'Quantity (Pcs)'}</span><input id="b_qty" type="number" class="inp-light" placeholder="100"></div><div><span class="small">${currentLang === 'ha' ? 'Farashin Guda ₦' : 'Price Per Piece ₦'}</span><input id="b_unit_price" type="number" class="inp-light" placeholder="7000"></div></div>`;
+  h += `<div class="grid2"><div><span class="small">${currentLang === 'ha' ? 'Kudin Yadi/Guda ₦' : 'Cost Per Piece ₦'}</span><input id="b_unit_cost" type="number" class="inp-light" placeholder="4000"></div><div><span class="small">${currentLang === 'ha' ? 'Kudin da aka Biya ₦' : 'Deposit Paid ₦'}</span><input id="b_paid" type="number" class="inp-light" placeholder="300000"></div></div>`;
+  h += `<div class="grid2"><div><span class="small">${currentLang === 'ha' ? 'Lambar Waya' : 'Contact Phone'}</span><input id="b_contact" class="inp-light" placeholder="080..."></div><div><span class="small">${t("due")}</span><input id="b_deadline" type="date" class="inp-light"></div></div>`;
+  h += `<button class="btn btn-green" type="button" style="width:100%;padding:14px;margin-top:4px" onclick="window.saveNewBulkOrder()">${t("confirmBulkContract")}</button>`;
+  h += `<button class="btn" type="button" style="width:100%;margin-top:8px;background:#eee" onclick="window.closeModal()">${t("cancel")}</button></div>`;
   document.getElementById("modalBox").innerHTML = h;
   document.getElementById("modal").style.display = "flex";
 };
 
 window.saveNewBulkOrder = async () => {
   const school = document.getElementById("b_school").value.trim();
-  if (!school) { alert("Please enter school name"); return; }
+  if (!school) { alert(t("enterSchoolAlert")); return; }
   const type = document.getElementById("b_type").value.trim() || "School Uniforms";
   const qty = parseFloat(document.getElementById("b_qty").value) || 0;
   const unitPrice = parseFloat(document.getElementById("b_unit_price").value) || 0;
@@ -887,20 +901,20 @@ window.openPayModal = (id, isBulk) => {
   const left = item.total - item.paid;
   const displayName = isBulk ? item.school : item.name;
 
-  let h = `<b>💰 Record Payment</b><div style="font-size:14px;font-weight:bold;margin:6px 0">${displayName}</div>`;
+  let h = `<b>${t("recordPaymentTitle")}</b><div style="font-size:14px;font-weight:bold;margin:6px 0">${displayName}</div>`;
   h += '<div class="card" style="background:#f8fafc;font-size:12px;margin-bottom:10px">';
-  h += `<div>Total: <b>₦${item.total.toLocaleString()}</b> | Balance Left: <b style="color:#f97316">₦${left.toLocaleString()}</b></div></div>`;
-  h += '<input id="pay_amount" type="number" class="inp-light" placeholder="Amount e.g. 5000">';
-  h += `<div class="grid2" style="margin-top:4px"><button class="btn" type="button" style="background:#ecfdf5;color:#16a34a;border:1px solid #10b981" onclick="document.getElementById('pay_amount').value=5000">+ ₦5,000</button><button class="btn" type="button" style="background:#ecfdf5;color:#16a34a;border:1px solid #10b981" onclick="document.getElementById('pay_amount').value=${left}">Clear All</button></div>`;
-  h += `<button class="btn btn-green" type="button" style="width:100%;padding:13px;margin-top:12px" onclick="window.savePayment('${id}', ${isBulk})">Sync Payment</button>`;
-  h += '<button class="btn" type="button" style="width:100%;margin-top:8px;background:#eee" onclick="window.closeModal()">Cancel</button>';
+  h += `<div>${t("totalLbl")}: <b>₦${item.total.toLocaleString()}</b> | ${t("balanceLeftLbl")}: <b style="color:#f97316">₦${left.toLocaleString()}</b></div></div>`;
+  h += `<input id="pay_amount" type="number" class="inp-light" placeholder="${t("amountPlaceholder")}">`;
+  h += `<div class="grid2" style="margin-top:4px"><button class="btn" type="button" style="background:#ecfdf5;color:#16a34a;border:1px solid #10b981" onclick="document.getElementById('pay_amount').value=5000">+ ₦5,000</button><button class="btn" type="button" style="background:#ecfdf5;color:#16a34a;border:1px solid #10b981" onclick="document.getElementById('pay_amount').value=${left}">${t("clearAll")}</button></div>`;
+  h += `<button class="btn btn-green" type="button" style="width:100%;padding:13px;margin-top:12px" onclick="window.savePayment('${id}', ${isBulk})">${t("syncPayment")}</button>`;
+  h += `<button class="btn" type="button" style="width:100%;margin-top:8px;background:#eee" onclick="window.closeModal()">${t("cancel")}</button>`;
   document.getElementById("modalBox").innerHTML = h;
   document.getElementById("modal").style.display = "flex";
 };
 
 window.savePayment = async (id, isBulk) => {
   const amt = parseFloat(document.getElementById("pay_amount").value) || 0;
-  if (amt <= 0) { alert("Enter valid amount"); return; }
+  if (amt <= 0) { alert(t("enterValidAmount")); return; }
 
   const item = isBulk ? bulkOrders.find(b => b.id === id) : customers.find(c => c.id === id);
   const newPaid = Math.min(item.total, item.paid + amt);
@@ -916,7 +930,7 @@ window.savePayment = async (id, isBulk) => {
 
 window.updateBulkCount = async (id) => {
   const b = bulkOrders.find(x => x.id === id);
-  const n = prompt("Total pieces sewn so far out of " + b.qty + ":", b.completedQty);
+  const n = prompt(`${t("piecesPrompt")} ${b.qty}:`, b.completedQty);
   if (n !== null && !isNaN(parseInt(n))) {
     const completed = Math.min(parseInt(n), b.qty);
     await updateDoc(doc(db, "bulk_contracts", id), { completed_quantity: completed });
@@ -931,12 +945,12 @@ window.calcQuickProfit = () => {
 };
 
 window.saveQuickSell = async () => {
-  const name = document.getElementById("q_name").value.trim() || "Walk-in Customer";
-  const type = document.getElementById("q_type").value.trim() || "Ready Wear";
+  const name = document.getElementById("q_name").value.trim() || (currentLang === 'ha' ? 'Mai Siyayya' : 'Walk-in Customer');
+  const type = document.getElementById("q_type").value.trim() || (currentLang === 'ha' ? 'Kayan Sayarwa' : 'Ready Wear');
   const total = parseFloat(document.getElementById("q_total").value) || 0;
   const cost = parseFloat(document.getElementById("q_cost").value) || 0;
   const paid = parseFloat(document.getElementById("q_paid").value) || 0;
-  if (total <= 0) { alert("Enter valid selling price"); return; }
+  if (total <= 0) { alert(t("enterValidPrice")); return; }
 
   await addDoc(collection(db, "customers"), {
     uid: currentUser.uid,
@@ -958,13 +972,13 @@ window.saveQuickSell = async () => {
 };
 
 window.delCustomer = async (id) => {
-  if (confirm("Delete this customer order from cloud records?")) {
+  if (confirm(t("deleteCustConfirm"))) {
     await deleteDoc(doc(db, "customers", id));
   }
 };
 
 window.delBulk = async (id) => {
-  if (confirm("Delete this bulk contract from cloud records?")) {
+  if (confirm(t("deleteBulkConfirm"))) {
     await deleteDoc(doc(db, "bulk_contracts", id));
   }
 };
@@ -973,19 +987,20 @@ window.closeModal = () => {
   document.getElementById("modal").style.display = "none";
 };
 
-window.toggleLang = () => {
-  alert("Language switch: English / Hausa");
-};
-
 // Real-Time Firebase Listener & Observer
 let unsubscribeCust = null;
 let unsubscribeBulk = null;
+
+// Initialize language labels on load
+updateStaticUI();
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
     document.getElementById("authScreen").style.display = "none";
     document.getElementById("dashboardScreen").style.display = "block";
+
+    updateStaticUI();
 
     // 1. Fetch Shop Name
     const shopDoc = await getDoc(doc(db, "shops", user.uid));
@@ -1050,6 +1065,7 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById("dashboardScreen").style.display = "none";
     document.getElementById("measureScreen").style.display = "none";
     document.getElementById("authScreen").style.display = "flex";
+    updateStaticUI();
   }
 });
 </script>

@@ -37,10 +37,15 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,san
 .top{background:white;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
 .logo-sq{width:40px;height:40px;background:#16a34a;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 10px rgba(22,163,74,0.3)}
 .card{background:white;border-radius:16px;padding:14px;margin-bottom:12px;border:1px solid #e2e8f0;box-shadow:0 1px 2px rgba(0,0,0,0.03)}
+.metric-card{cursor:pointer;transition:transform 0.15s ease, border-color 0.15s ease}
+.metric-card:active{transform:scale(0.97)}
+.metric-card.active-metric{border:2px solid #2563eb;background:#eff6ff}
 .btn{padding:10px 14px;border-radius:12px;border:none;font-weight:600;font-size:12px;cursor:pointer}
 .btn-green{background:#16a34a;color:white}
 .btn-dark{background:#1e293b;color:white}
 .small{font-size:11px;color:#64748b}
+.filter-btn{padding:7px 14px;border-radius:20px;border:1px solid #cbd5e1;background:white;font-size:11px;font-weight:600;color:#64748b;cursor:pointer;white-space:nowrap}
+.filter-btn.active{background:#2563eb;color:white;border-color:#2563eb}
 .tab{flex:1;padding:9px 4px;border-radius:20px;border:none;font-size:11px;cursor:pointer;background:transparent;color:#64748b;font-weight:bold;text-align:center}
 .tab.active{background:#0B1226;color:white}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -114,26 +119,42 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,san
   </div>
 
   <div style="padding:12px;max-width:480px;margin:0 auto">
-    <!-- Financial Metric Cards -->
+    <!-- Date Filter Bar -->
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px">
+      <button class="filter-btn active" id="flt_all" type="button" onclick="window.setDateFilter('all')">All Time</button>
+      <button class="filter-btn" id="flt_month" type="button" onclick="window.setDateFilter('month')">This Month</button>
+      <button class="filter-btn" id="flt_quarter" type="button" onclick="window.setDateFilter('quarter')">This Quarter</button>
+      <button class="filter-btn" id="flt_year" type="button" onclick="window.setDateFilter('year')">This Year</button>
+    </div>
+
+    <!-- Financial Metric Cards (Interactive Filters) -->
     <div class="grid4" style="margin-bottom:12px">
-      <div class="card">
+      <div class="card metric-card" id="card_all" onclick="window.setMetricFilter('all')">
         <div class="small" id="lbl_totalSales">Total Sales</div>
         <b id="m_total" style="font-size:16px">₦0</b>
         <div id="m_jobs" style="font-size:10px;color:#64748b;margin-top:2px">0 Total Jobs</div>
       </div>
-      <div class="card">
+      <div class="card metric-card" id="card_received" onclick="window.setMetricFilter('received')">
         <div class="small" id="lbl_received">Received</div>
         <b id="m_received" style="font-size:16px;color:#16a34a">₦0</b>
+        <div id="sub_received" style="font-size:10px;color:#64748b;margin-top:2px">Paid In Full</div>
       </div>
-      <div class="card">
+      <div class="card metric-card" id="card_outstanding" onclick="window.setMetricFilter('outstanding')">
         <div class="small" id="lbl_outstanding">Outstanding</div>
         <b id="m_debt" style="font-size:16px;color:#f97316">₦0</b>
+        <div id="sub_debt" style="font-size:10px;color:#64748b;margin-top:2px">Unpaid Debt</div>
       </div>
-      <div class="card">
+      <div class="card metric-card" id="card_profit" onclick="window.setMetricFilter('profit')">
         <div class="small" id="lbl_profit">Real Profit</div>
         <b id="m_profit" style="font-size:16px;color:#0284c7">₦0</b>
         <div id="m_exp" style="font-size:10px;color:#64748b;margin-top:2px">Exp: ₦0</div>
       </div>
+    </div>
+
+    <!-- Active Filter Indicator Banner -->
+    <div id="activeFilterBanner" style="display:none;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:6px 12px;margin-bottom:10px;justify-content:space-between;align-items:center;font-size:11px">
+      <span style="color:#1d4ed8"><b id="activeFilterText">Filtered</b></span>
+      <button type="button" onclick="window.clearMetricFilter()" style="background:none;border:none;color:#ef4444;font-weight:bold;cursor:pointer;font-size:11px">✕ Clear</button>
     </div>
 
     <!-- Search Input -->
@@ -160,6 +181,221 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,san
     <button type="button" onclick="window.closeMeasure()" style="background:none;border:none;color:white;font-size:22px;cursor:pointer">←</button>
     <div>
       <b id="m_cust_name" style="font-size:15px">Customer Name</b>
+      <div id="m_cust_sub" style="font-size:11px;color:#94a3b8">Details</div>
+    </div>
+    <button type="button" id="measureLockBtn" onclick="window.toggleMeasureEdit()" style="margin-left:auto;width:36px;height:36px;background:#10b981;border-radius:50%;border:none;cursor:pointer">✏️</button>
+  </div>
+  <div id="measureBody" style="padding:12px;max-width:480px;margin:0 auto;padding-bottom:100px"></div>
+  <div style="position:fixed;bottom:0;left:0;right:0;padding:12px;background:#0f172a;border-top:1px solid #1e293b">
+    <div style="max-width:480px;margin:0 auto" id="measureBottomBar"></div>
+  </div>
+</div>
+
+<div id="modal" class="modal"><div id="modalBox" class="modal-box"></div></div>
+
+<!-- FIREBASE SDK & APPLICATION ENGINE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { 
+  getFirestore, 
+  collection, 
+  doc, 
+  setDoc, 
+  getDoc, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  query, 
+  where, 
+  onSnapshot 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDXp1IbejZRUdk2OxTezvi25ZDdeB5rLqQ",
+  authDomain: "tailor-keeper.firebaseapp.com",
+  projectId: "tailor-keeper",
+  storageBucket: "tailor-keeper.firebasestorage.app",
+  messagingSenderId: "791863119393",
+  appId: "1:791863119393:web:494c752e472e88dd671d60"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// In-line Service Worker for PWA
+if ('serviceWorker' in navigator) {
+  const swCode = `self.addEventListener('fetch', e => { e.respondWith(fetch(e.request).catch(() => new Response('Offline'))); });`;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+}
+
+let deferredPrompt = null;
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+window.triggerPWAInstall = () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+  } else {
+    document.getElementById("steps").classList.toggle("hide");
+  }
+};
+
+// Language Dictionary
+let currentLang = "en";
+try {
+  const savedL = localStorage.getItem("tk_lang");
+  if (savedL) currentLang = savedL;
+} catch(e) {}
+
+const i18n = {
+  en: {
+    toggleBtn: "HA",
+    authSubtitle: "Order, School Bulk, Expenses and POS",
+    login: "Login",
+    signup: "Sign Up",
+    welcome: "Welcome back",
+    createShopTitle: "Create your shop",
+    shopPlaceholder: "Shop name, example: Luky Tailors",
+    phonePlaceholder: "Phone number, example: 08031234567",
+    passPlaceholder: "Password (6 or more letters/digits)",
+    enterBtn: "Enter →",
+    createShopBtn: "Create Shop",
+    installBtn: "📲 Install App on Phone",
+    installHeader: "Install on Phone:",
+    installAndroid: "<b>Android:</b> Tap Chrome 3 dots (⋮) → <b>Install App</b>.",
+    installIos: "<b>iPhone:</b> Tap Share (<span style=\"font-size:16px\">⎙</span>) → <b>Add to Home Screen</b>.",
+    topSubtitle: "Tailor Hub (Cloud Synced)",
+    logout: "Logout",
+    totalSales: "Total Sales",
+    received: "Received",
+    outstanding: "Outstanding",
+    profit: "Real Profit",
+    jobsCount: "Jobs",
+    expAbbr: "Exp",
+    paidInFull: "Paid In Full",
+    unpaidDebt: "Unpaid Debt",
+    allTime: "All Time",
+    thisMonth: "This Month",
+    thisQuarter: "This Quarter",
+    thisYear: "This Year",
+    filterSalesMsg: "Showing All Sales Orders",
+    filterReceivedMsg: "Showing Fully Paid Orders Only",
+    filterDebtMsg: "Showing Orders with Outstanding Balances",
+    filterProfitMsg: "Sorted by Highest Real Profit",
+    clearFilter: "✕ Clear",
+    searchPlaceholder: "Search orders...",
+    tabCustomers: "Customers",
+    tabBulk: "Bulk / School",
+    tabReport: "Report",
+    tabSell: "Quick Sell",
+    custOrdersHeader: "Customer Orders",
+    newOrderBtn: "+ New Order",
+    newBulkBtn: "+ New Bulk Contract",
+    bulkOrdersHeader: "School & Institutional Contracts",
+    pieces: "Pieces",
+    due: "Due",
+    productionProgress: "Production",
+    sewn: "sewn",
+    ready: "ready",
+    contractVal: "Contract",
+    costVal: "Cost",
+    profitVal: "Profit",
+    netProfitVal: "Net Profit",
+    paidPct: "paid",
+    left: "left",
+    payBtn: "💰 Payment",
+    measureBtn: "📏 Measurements",
+    updateCountBtn: "✏️ Update Count",
+    reportHeader: "Firebase Cloud Report",
+    reportIndiv: "Individual Orders:",
+    reportBulk: "School Bulk Contracts:",
+    reportGross: "Total Gross Sales:",
+    reportExpenses: "Total Expenses:",
+    reportNet: "Net Profit:",
+    reportMargin: "Profit Margin:",
+    reportCollected: "Cash Collected:",
+    reportDebt: "Outstanding Debt:",
+    quickSaleHeader: "⚡ Direct POS / Quick Sale",
+    quickClient: "Client Name (or Walk-in)",
+    quickGarment: "Garment e.g. Ready-Made Kaftan, Fabric 4yd",
+    quickSellingPrice: "Selling Price ₦",
+    quickCost: "Cost / Expense ₦",
+    quickAmountPaid: "Amount Paid ₦",
+    quickCalcProfit: "Calculated Profit",
+    quickSaveBtn: "Record & Sync Instant Sale →",
+    upperBody: "📏 Upper Body",
+    bustChest: "Bust / Chest",
+    shoulder: "Shoulder",
+    sleeve: "Sleeve",
+    topLength: "Top Length",
+    lowerBody: "📏 Lower Body",
+    waist: "Waist",
+    hip: "Hip",
+    trouserLength: "Trouser / Skirt Length",
+    extra: "📏 Extra",
+    neck: "Neck",
+    customFields: "📐 Custom Fields",
+    addBtn: "+ Add",
+    noCustom: "No custom fields recorded",
+    saveToFirebase: "Save to Firebase",
+    editMeasurements: "Edit Measurements",
+    saveCloudCustomer: "Save Customer to Cloud →",
+    confirmBulkContract: "Confirm Bulk Contract →",
+    cancel: "Cancel",
+    recordPaymentTitle: "💰 Record Payment",
+    totalLbl: "Total",
+    balanceLeftLbl: "Balance Left",
+    amountPlaceholder: "Amount e.g. 5000",
+    clearAll: "Clear All",
+    syncPayment: "Sync Payment",
+    piecesPrompt: "Total pieces sewn so far out of",
+    deleteCustConfirm: "Delete this customer order from cloud records?",
+    deleteBulkConfirm: "Delete this bulk contract from cloud records?",
+    saveSuccess: "Measurements saved to cloud!",
+    enterValidAmount: "Enter valid amount",
+    enterValidPrice: "Enter valid selling price",
+    enterNameAlert: "Please enter customer name",
+    enterSchoolAlert: "Please enter school name",
+    enterValidPhone: "Please enter valid phone number.",
+    enterValidPass: "Password must be at least 6 characters.",
+    enterShopName: "Please enter shop name.",
+    processingMsg: "Processing, please wait...",
+    accountCreatedMsg: "Account created! Signing you in...",
+    phoneInUseMsg: "Phone already registered. Switch to Login.",
+    wrongCredsMsg: "Wrong phone number or password."
+  },
+  ha: {
+    toggleBtn: "EN",
+    authSubtitle: "Dinki, Kayan Makaranta, Kudaden Kashewa da POS",
+    login: "Shiga",
+    signup: "Yi Rajista",
+    welcome: "Barka da dawowa",
+    createShopTitle: "Bude sabon shago",
+    shopPlaceholder: "Sunan shago, misali: Luky Tailors",
+    phonePlaceholder: "Lambar waya, misali: 08031234567",
+    passPlaceholder: "Kalmar sirri (haruffa 6 ko sama)",
+    enterBtn: "Shiga →",
+    createShopBtn: "Bude Shago",
+    installBtn: "📲 Saka manhaja a waya",
+    installHeader: "Yadda ake sakawa a waya:",
+    installAndroid: "<b>Android:</b> Danna digo 3 a Chrome (⋮) → <b>Install App</b>.",
+    installIos: "<b>iPhone:</b> Danna Share (<span style=\"font-size:16px\">⎙</span>) → <b>Add to Home Screen</b>.",
+    topSubtitle: "Dakin Dinki (Kan Layi)",
+    logout: "Fita",
+    totalSales: "Jimillar Kudi",
+    received: "An Karle="font-size:15px">Customer Name</b>
       <div id="m_cust_sub" style="font-size:11px;color:#94a3b8">Details</div>
     </div>
     <button type="button" id="measureLockBtn" onclick="window.toggleMeasureEdit()" style="margin-left:auto;width:36px;height:36px;background:#10b981;border-radius:50%;border:none;cursor:pointer">✏️</button>

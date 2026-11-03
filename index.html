@@ -395,215 +395,22 @@ const i18n = {
     topSubtitle: "Dakin Dinki (Kan Layi)",
     logout: "Fita",
     totalSales: "Jimillar Kudi",
-    received: "An Karle="font-size:15px">Customer Name</b>
-      <div id="m_cust_sub" style="font-size:11px;color:#94a3b8">Details</div>
-    </div>
-    <button type="button" id="measureLockBtn" onclick="window.toggleMeasureEdit()" style="margin-left:auto;width:36px;height:36px;background:#10b981;border-radius:50%;border:none;cursor:pointer">✏️</button>
-  </div>
-  <div id="measureBody" style="padding:12px;max-width:480px;margin:0 auto;padding-bottom:100px"></div>
-  <div style="position:fixed;bottom:0;left:0;right:0;padding:12px;background:#0f172a;border-top:1px solid #1e293b">
-    <div style="max-width:480px;margin:0 auto" id="measureBottomBar"></div>
-  </div>
-</div>
-
-<div id="modal" class="modal"><div id="modalBox" class="modal-box"></div></div>
-
-<!-- FIREBASE SDK & APPLICATION ENGINE -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { 
-  getAuth, 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { 
-  getFirestore, 
-  collection, 
-  doc, 
-  setDoc, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  onSnapshot 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDXp1IbejZRUdk2OxTezvi25ZDdeB5rLqQ",
-  authDomain: "tailor-keeper.firebaseapp.com",
-  projectId: "tailor-keeper",
-  storageBucket: "tailor-keeper.firebasestorage.app",
-  messagingSenderId: "791863119393",
-  appId: "1:791863119393:web:494c752e472e88dd671d60"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// In-line Service Worker for PWA
-if ('serviceWorker' in navigator) {
-  const swCode = `self.addEventListener('fetch', e => { e.respondWith(fetch(e.request).catch(() => new Response('Offline'))); });`;
-  const blob = new Blob([swCode], { type: 'application/javascript' });
-  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
-}
-
-let deferredPrompt = null;
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-});
-
-window.triggerPWAInstall = () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
-  } else {
-    document.getElementById("steps").classList.toggle("hide");
-  }
-};
-
-// Language Dictionary
-let currentLang = "en";
-try {
-  const savedL = localStorage.getItem("tk_lang");
-  if (savedL) currentLang = savedL;
-} catch(e) {}
-
-const i18n = {
-  en: {
-    toggleBtn: "HA",
-    authSubtitle: "Order, School Bulk, Expenses and POS",
-    login: "Login",
-    signup: "Sign Up",
-    welcome: "Welcome back",
-    createShopTitle: "Create your shop",
-    shopPlaceholder: "Shop name, example: Luky Tailors",
-    phonePlaceholder: "Phone number, example: 08031234567",
-    passPlaceholder: "Password (6 or more letters/digits)",
-    enterBtn: "Enter →",
-    createShopBtn: "Create Shop",
-    installBtn: "📲 Install App on Phone",
-    installHeader: "Install on Phone:",
-    installAndroid: "<b>Android:</b> Tap Chrome 3 dots (⋮) → <b>Install App</b>.",
-    installIos: "<b>iPhone:</b> Tap Share (<span style=\"font-size:16px\">⎙</span>) → <b>Add to Home Screen</b>.",
-    topSubtitle: "Tailor Hub (Cloud Synced)",
-    logout: "Logout",
-    totalSales: "Total Sales",
-    received: "Received",
-    outstanding: "Outstanding",
-    profit: "Real Profit",
-    jobsCount: "Jobs",
-    expAbbr: "Exp",
-    searchPlaceholder: "Search orders...",
-    tabCustomers: "Customers",
-    tabBulk: "Bulk / School",
-    tabReport: "Report",
-    tabSell: "Quick Sell",
-    custOrdersHeader: "Customer Orders",
-    newOrderBtn: "+ New Order",
-    newBulkBtn: "+ New Bulk Contract",
-    bulkOrdersHeader: "School & Institutional Contracts",
-    pieces: "Pieces",
-    due: "Due",
-    productionProgress: "Production",
-    sewn: "sewn",
-    ready: "ready",
-    contractVal: "Contract",
-    costVal: "Cost",
-    profitVal: "Profit",
-    netProfitVal: "Net Profit",
-    paidPct: "paid",
-    left: "left",
-    payBtn: "💰 Payment",
-    measureBtn: "📏 Measurements",
-    updateCountBtn: "✏️ Update Count",
-    reportHeader: "Firebase Cloud Report",
-    reportIndiv: "Individual Orders:",
-    reportBulk: "School Bulk Contracts:",
-    reportGross: "Total Gross Sales:",
-    reportExpenses: "Total Expenses:",
-    reportNet: "Net Profit:",
-    reportMargin: "Profit Margin:",
-    reportCollected: "Cash Collected:",
-    reportDebt: "Outstanding Debt:",
-    quickSaleHeader: "⚡ Direct POS / Quick Sale",
-    quickClient: "Client Name (or Walk-in)",
-    quickGarment: "Garment e.g. Ready-Made Kaftan, Fabric 4yd",
-    quickSellingPrice: "Selling Price ₦",
-    quickCost: "Cost / Expense ₦",
-    quickAmountPaid: "Amount Paid ₦",
-    quickCalcProfit: "Calculated Profit",
-    quickSaveBtn: "Record & Sync Instant Sale →",
-    upperBody: "📏 Upper Body",
-    bustChest: "Bust / Chest",
-    shoulder: "Shoulder",
-    sleeve: "Sleeve",
-    topLength: "Top Length",
-    lowerBody: "📏 Lower Body",
-    waist: "Waist",
-    hip: "Hip",
-    trouserLength: "Trouser / Skirt Length",
-    extra: "📏 Extra",
-    neck: "Neck",
-    customFields: "📐 Custom Fields",
-    addBtn: "+ Add",
-    noCustom: "No custom fields recorded",
-    saveToFirebase: "Save to Firebase",
-    editMeasurements: "Edit Measurements",
-    saveCloudCustomer: "Save Customer to Cloud →",
-    confirmBulkContract: "Confirm Bulk Contract →",
-    cancel: "Cancel",
-    recordPaymentTitle: "💰 Record Payment",
-    totalLbl: "Total",
-    balanceLeftLbl: "Balance Left",
-    amountPlaceholder: "Amount e.g. 5000",
-    clearAll: "Clear All",
-    syncPayment: "Sync Payment",
-    piecesPrompt: "Total pieces sewn so far out of",
-    deleteCustConfirm: "Delete this customer order from cloud records?",
-    deleteBulkConfirm: "Delete this bulk contract from cloud records?",
-    saveSuccess: "Measurements saved to cloud!",
-    enterValidAmount: "Enter valid amount",
-    enterValidPrice: "Enter valid selling price",
-    enterNameAlert: "Please enter customer name",
-    enterSchoolAlert: "Please enter school name",
-    enterValidPhone: "Please enter valid phone number.",
-    enterValidPass: "Password must be at least 6 characters.",
-    enterShopName: "Please enter shop name.",
-    processingMsg: "Processing, please wait...",
-    accountCreatedMsg: "Account created! Signing you in...",
-    phoneInUseMsg: "Phone already registered. Switch to Login.",
-    wrongCredsMsg: "Wrong phone number or password."
-  },
-  ha: {
-    toggleBtn: "EN",
-    authSubtitle: "Dinki, Kayan Makaranta, Kudaden Kashewa da POS",
-    login: "Shiga",
-    signup: "Yi Rajista",
-    welcome: "Barka da dawowa",
-    createShopTitle: "Bude sabon shago",
-    shopPlaceholder: "Sunan shago, misali: Luky Tailors",
-    phonePlaceholder: "Lambar waya, misali: 08031234567",
-    passPlaceholder: "Kalmar sirri (haruffa 6 ko sama)",
-    enterBtn: "Shiga →",
-    createShopBtn: "Bude Shago",
-    installBtn: "📲 Saka manhaja a waya",
-    installHeader: "Yadda ake sakawa a waya:",
-    installAndroid: "<b>Android:</b> Danna digo 3 a Chrome (⋮) → <b>Install App</b>.",
-    installIos: "<b>iPhone:</b> Danna Share (<span style=\"font-size:16px\">⎙</span>) → <b>Add to Home Screen</b>.",
-    topSubtitle: "Dakin Dinki (Kan Layi)",
-    logout: "Fita",
-    totalSales: "Jimillar Kudi",
     received: "An Karba",
     outstanding: "Bashi",
     profit: "Riba",
     jobsCount: "Odi",
     expAbbr: "Kashi",
+    paidInFull: "An Gama Biya",
+    unpaidDebt: "Masu Ragowar Bashi",
+    allTime: "Duk Lokaci",
+    thisMonth: "Wannan Wata",
+    thisQuarter: "Wannan Kwata",
+    thisYear: "Wannan Shekara",
+    filterSalesMsg: "Ana Nuna Dukkan Tallace-tallace",
+    filterReceivedMsg: "Ana Nuna Wadanda Suka Gama Biya",
+    filterDebtMsg: "Ana Nuna Masu Ragowar Bashi",
+    filterProfitMsg: "An Jera Daga Masu Mafi Yawan Riba",
+    clearFilter: "✕ share",
     searchPlaceholder: "Nemo dinki...",
     tabCustomers: "Abokan Ciniki",
     tabBulk: "Dinkin Gungu",
@@ -698,7 +505,6 @@ window.toggleLang = () => {
 };
 
 function updateStaticUI() {
-  const L = currentLang;
   const authLangBtn = document.getElementById("authLangBtn");
   const dashLangBtn = document.getElementById("dashLangBtn");
   if (authLangBtn) authLangBtn.innerText = t("toggleBtn");
@@ -750,6 +556,20 @@ function updateStaticUI() {
   if (lbl_outstanding) lbl_outstanding.innerText = t("outstanding");
   if (lbl_profit) lbl_profit.innerText = t("profit");
 
+  const sub_received = document.getElementById("sub_received");
+  const sub_debt = document.getElementById("sub_debt");
+  if (sub_received) sub_received.innerText = t("paidInFull");
+  if (sub_debt) sub_debt.innerText = t("unpaidDebt");
+
+  const flt_all = document.getElementById("flt_all");
+  const flt_month = document.getElementById("flt_month");
+  const flt_quarter = document.getElementById("flt_quarter");
+  const flt_year = document.getElementById("flt_year");
+  if (flt_all) flt_all.innerText = t("allTime");
+  if (flt_month) flt_month.innerText = t("thisMonth");
+  if (flt_quarter) flt_quarter.innerText = t("thisQuarter");
+  if (flt_year) flt_year.innerText = t("thisYear");
+
   const searchInput = document.getElementById("searchInput");
   if (searchInput) searchInput.placeholder = t("searchPlaceholder");
 }
@@ -766,8 +586,55 @@ let authMode = "login";
 let currentCustomer = null;
 let measureEditing = false;
 
+// Filter States
+let activeDateFilter = "all"; // 'all', 'month', 'quarter', 'year'
+let activeMetricFilter = "all"; // 'all', 'received', 'outstanding', 'profit'
+
 // Helpers
 const phoneToEmail = (p) => p.replace(/\D/g, "") + "@tailor-keeper.app";
+
+// Filter Handlers
+window.setDateFilter = (filterType) => {
+  activeDateFilter = filterType;
+  ["flt_all", "flt_month", "flt_quarter", "flt_year"].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.remove("active");
+  });
+  const activeBtnMap = { all: "flt_all", month: "flt_month", quarter: "flt_quarter", year: "flt_year" };
+  const target = document.getElementById(activeBtnMap[filterType]);
+  if (target) target.classList.add("active");
+  renderDashboard();
+};
+
+window.setMetricFilter = (metricType) => {
+  activeMetricFilter = metricType;
+  renderDashboard();
+};
+
+window.clearMetricFilter = () => {
+  activeMetricFilter = "all";
+  renderDashboard();
+};
+
+function isDateInFilter(dateStr, filterType) {
+  if (filterType === "all" || !dateStr) return true;
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return true;
+  const now = new Date();
+  
+  if (filterType === "month") {
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }
+  if (filterType === "quarter") {
+    const curQ = Math.floor(now.getMonth() / 3);
+    const dateQ = Math.floor(d.getMonth() / 3);
+    return curQ === dateQ && d.getFullYear() === now.getFullYear();
+  }
+  if (filterType === "year") {
+    return d.getFullYear() === now.getFullYear();
+  }
+  return true;
+}
 
 window.setAuthTab = (m) => {
   authMode = m;
@@ -833,23 +700,71 @@ window.searchOrders = (q) => {
 };
 
 function renderDashboard() {
-  const cList = customers.filter(c => c.name.toLowerCase().includes(searchQuery) || c.type.toLowerCase().includes(searchQuery));
-  const bList = bulkOrders.filter(b => b.school.toLowerCase().includes(searchQuery) || b.type.toLowerCase().includes(searchQuery));
+  // 1. Filter by Date
+  const dateCust = customers.filter(c => isDateInFilter(c.date, activeDateFilter));
+  const dateBulk = bulkOrders.filter(b => isDateInFilter(b.deadline, activeDateFilter));
 
+  // 2. Aggregate Totals based on Date Filter
   let totalSales = 0, received = 0, debt = 0, profit = 0, expenses = 0;
-  for (const c of cList) {
+  for (const c of dateCust) {
     totalSales += c.total; received += c.paid; debt += (c.total - c.paid); profit += c.profit; expenses += (c.cost || 0);
   }
-  for (const b of bList) {
+  for (const b of dateBulk) {
     totalSales += b.total; received += b.paid; debt += (b.total - b.paid); profit += b.profit; expenses += (b.cost || 0);
   }
 
   document.getElementById("m_total").innerText = "₦" + totalSales.toLocaleString();
-  document.getElementById("m_jobs").innerText = (cList.length + bList.length) + " " + t("jobsCount");
+  document.getElementById("m_jobs").innerText = (dateCust.length + dateBulk.length) + " " + t("jobsCount");
   document.getElementById("m_received").innerText = "₦" + received.toLocaleString();
   document.getElementById("m_debt").innerText = "₦" + debt.toLocaleString();
   document.getElementById("m_profit").innerText = "₦" + profit.toLocaleString();
   document.getElementById("m_exp").innerText = t("expAbbr") + ": ₦" + expenses.toLocaleString();
+
+  // 3. Highlight Selected Metric Card
+  ["card_all", "card_received", "card_outstanding", "card_profit"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove("active-metric");
+  });
+  const metricCardMap = {
+    all: "card_all",
+    received: "card_received",
+    outstanding: "card_outstanding",
+    profit: "card_profit"
+  };
+  const activeCard = document.getElementById(metricCardMap[activeMetricFilter]);
+  if (activeCard) activeCard.classList.add("active-metric");
+
+  // 4. Update Filter Banner Indicator
+  const banner = document.getElementById("activeFilterBanner");
+  const bannerTxt = document.getElementById("activeFilterText");
+  if (banner && bannerTxt) {
+    if (activeMetricFilter === "all") {
+      banner.style.display = "none";
+    } else {
+      banner.style.display = "flex";
+      const filterMsgMap = {
+        received: t("filterReceivedMsg"),
+        outstanding: t("filterDebtMsg"),
+        profit: t("filterProfitMsg")
+      };
+      bannerTxt.innerText = filterMsgMap[activeMetricFilter] || "";
+    }
+  }
+
+  // 5. Apply Search & Metric Filters to Display List
+  let cList = dateCust.filter(c => c.name.toLowerCase().includes(searchQuery) || c.type.toLowerCase().includes(searchQuery));
+  let bList = dateBulk.filter(b => b.school.toLowerCase().includes(searchQuery) || b.type.toLowerCase().includes(searchQuery));
+
+  if (activeMetricFilter === "received") {
+    cList = cList.filter(c => c.total > 0 && c.paid >= c.total);
+    bList = bList.filter(b => b.total > 0 && b.paid >= b.total);
+  } else if (activeMetricFilter === "outstanding") {
+    cList = cList.filter(c => (c.total - c.paid) > 0);
+    bList = bList.filter(b => (b.total - b.paid) > 0);
+  } else if (activeMetricFilter === "profit") {
+    cList.sort((a, b) => b.profit - a.profit);
+    bList.sort((a, b) => b.profit - a.profit);
+  }
 
   document.getElementById("t_cust").innerHTML = `${t("tabCustomers")} (<span id="c_count">${cList.length}</span>)`;
   document.getElementById("t_bulk").innerHTML = `${t("tabBulk")} (<span id="b_count">${bList.length}</span>)`;
@@ -863,6 +778,10 @@ function renderDashboard() {
     h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
     h += `<b style="font-size:14px">${t("custOrdersHeader")}</b>`;
     h += `<button class="btn btn-green" type="button" onclick="window.openNewModal()">${t("newOrderBtn")}</button></div>`;
+
+    if (cList.length === 0) {
+      h += `<div class="card" style="text-align:center;color:#64748b;padding:26px 12px">No matching orders for this filter.</div>`;
+    }
 
     for (const c of cList) {
       const rem = c.total - c.paid;
@@ -885,6 +804,10 @@ function renderDashboard() {
     h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
     h += `<b style="font-size:14px">${t("bulkOrdersHeader")}</b>`;
     h += `<button class="btn btn-green" type="button" onclick="window.openNewBulkModal()">${t("newBulkBtn")}</button></div>`;
+
+    if (bList.length === 0) {
+      h += `<div class="card" style="text-align:center;color:#64748b;padding:26px 12px">No matching bulk contracts for this filter.</div>`;
+    }
 
     for (const b of bList) {
       const bRem = b.total - b.paid;
@@ -909,8 +832,8 @@ function renderDashboard() {
     const margin = totalSales > 0 ? Math.round((profit / totalSales) * 100) : 0;
     h += `<b style="font-size:14px">${t("reportHeader")}</b>`;
     h += '<div class="card" style="margin-top:8px"><table class="table-ui">';
-    h += `<tr><td>${t("reportIndiv")}</td><td style="text-align:right">₦${cList.reduce((a,b)=>a+b.total,0).toLocaleString()}</td></tr>`;
-    h += `<tr><td>${t("reportBulk")}</td><td style="text-align:right">₦${bList.reduce((a,b)=>a+b.total,0).toLocaleString()}</td></tr>`;
+    h += `<tr><td>${t("reportIndiv")}</td><td style="text-align:right">₦${dateCust.reduce((a,b)=>a+b.total,0).toLocaleString()}</td></tr>`;
+    h += `<tr><td>${t("reportBulk")}</td><td style="text-align:right">₦${dateBulk.reduce((a,b)=>a+b.total,0).toLocaleString()}</td></tr>`;
     h += `<tr style="border-top:2px solid #e2e8f0"><td><b>${t("reportGross")}</b></td><td style="text-align:right;font-weight:bold">₦${totalSales.toLocaleString()}</td></tr>`;
     h += `<tr><td>${t("reportExpenses")}</td><td style="text-align:right;font-weight:bold;color:#ef4444">- ₦${expenses.toLocaleString()}</td></tr>`;
     h += `<tr><td><b>${t("reportNet")}</b></td><td style="text-align:right;font-weight:bold;color:#16a34a">₦${profit.toLocaleString()}</td></tr>`;

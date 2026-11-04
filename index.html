@@ -218,7 +218,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDXp1IbejZRUdk2OxTezvi25ZDdeB5rLqQ",
+  apiKey: "export default function handler(req, res) {
+  res.status(200).json({
+    apiKey: process.env.FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY
+  });
+}
+ ",
   authDomain: "tailor-keeper.firebaseapp.com",
   projectId: "tailor-keeper",
   storageBucket: "tailor-keeper.firebasestorage.app",

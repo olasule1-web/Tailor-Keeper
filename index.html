@@ -12,8 +12,14 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Tailor Keeper">
 
-<!-- Embedded PWA Manifest -->
-<link rel="manifest" href='data:application/manifest+json,{"name":"Tailor Keeper","short_name":"TailorKeeper","start_url":".","display":"standalone","background_color":"#0B1226","theme_color":"#0B1226","icons":[{"src":"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2225%22 fill=%22%2316a34a%22/><text y=%2268%22 font-size=%2260%22 x=%2220%22>✂️</text></svg>","sizes":"192x192 512x512","type":"image/svg+xml"}]}'>
+<!-- App Icons & Favicons -->
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/logo-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/logo-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/logo-512.png">
+
+<!-- Embedded PWA Manifest Linked Directly to Uploaded PNG Logos -->
+<link rel="manifest" href='data:application/manifest+json,{"name":"Tailor Keeper","short_name":"TailorKeeper","start_url":".","display":"standalone","background_color":"#0B1226","theme_color":"#0B1226","icons":[{"src":"/logo-192.png","sizes":"192x192","type":"image/png"},{"src":"/logo-512.png","sizes":"512x512","type":"image/png"}]}'>
 
 <style>
 *{box-sizing:border-box}
@@ -21,6 +27,8 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,san
 
 /* 1. Dark Auth Screen */
 #authScreen{background:#0B1226;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px;color:#fff}
+.auth-logo-box{width:76px;height:76px;border-radius:20px;overflow:hidden;margin-top:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 25px rgba(34,197,94,.4);background:#151E38}
+.auth-logo-box img{width:100%;height:100%;object-fit:cover;border-radius:20px}
 .lock-box{background:#151E38;border:1px solid #1E293B;border-radius:18px;padding:20px;width:100%;max-width:380px;margin-top:14px}
 .lock-tabs{display:flex;background:#0B1226;border-radius:25px;padding:4px;margin-bottom:15px}
 .lock-tabs button{flex:1;border:0;padding:10px;background:transparent;color:#94A3B8;cursor:pointer;font-weight:bold;font-size:14px}
@@ -35,7 +43,8 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,san
 /* 2. White Dashboard */
 #dashboardScreen{display:none}
 .top{background:white;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
-.logo-sq{width:40px;height:40px;background:#16a34a;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 10px rgba(22,163,74,0.3)}
+.top-logo-box{width:42px;height:42px;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#151E38;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+.top-logo-box img{width:100%;height:100%;object-fit:cover;border-radius:12px}
 .card{background:white;border-radius:16px;padding:14px;margin-bottom:12px;border:1px solid #e2e8f0;box-shadow:0 1px 2px rgba(0,0,0,0.03)}
 .metric-card{cursor:pointer;transition:transform 0.15s ease, border-color 0.15s ease}
 .metric-card:active{transform:scale(0.97)}
@@ -67,10 +76,6 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,san
 
 .hide{display:none !important}
 </style>
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/logo-180.png">
-<link rel="icon" type="image/png" sizes="192x192" href="/logo-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="/logo-512.png">
 </head>
 <body>
 
@@ -79,7 +84,12 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,san
   <div style="display:flex;gap:8px;position:absolute;top:16px;right:16px">
     <button class="lang-btn" id="authLangBtn" type="button" onclick="window.toggleLang()">EN</button>
   </div>
-  <div style="width:72px;height:72px;background:#22C55E;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:38px;margin-top:20px;box-shadow:0 0 25px rgba(34,197,94,.6)">✂️</div>
+
+  <!-- Real Uploaded PNG Logo with Auto-Fallback -->
+  <div class="auth-logo-box">
+    <img src="/logo-192.png" alt="Tailor Keeper Logo" onerror="this.onerror=null;this.src='/favicon-32.png';this.style.padding='14px';">
+  </div>
+
   <div style="color:white;font-weight:bold;font-size:24px;margin-top:12px">Tailor Keeper</div>
   <div id="authSubtitle" style="color:#94a3b8;font-size:13px;margin-top:2px">Order, School Bulk, Expenses and POS</div>
 
@@ -110,7 +120,10 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,san
 <div id="dashboardScreen">
   <div class="top">
     <div style="display:flex;gap:10px;align-items:center">
-      <div class="logo-sq">✂️</div>
+      <!-- Real Uploaded PNG Logo on Dashboard Header -->
+      <div class="top-logo-box">
+        <img src="/logo-180.png" alt="Tailor Keeper" onerror="this.onerror=null;this.src='/logo-192.png';">
+      </div>
       <div>
         <b id="topShopName" style="font-size:15px;color:#0f172a">Luky Tailors</b>
         <div id="topSubtitle" class="small">Tailor Hub (Cloud Synced)</div>
@@ -221,8 +234,20 @@ import {
   onSnapshot 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+// Fetch key dynamically from Vercel /api/config with graceful local fallback
+let activeApiKey = "AIzaSyCHsoP-gCnEaP7j_cTZfYoyVhnhQlq4aCs";
+try {
+  const cfgRes = await fetch("/api/config");
+  if (cfgRes.ok) {
+    const cfgData = await cfgRes.json();
+    if (cfgData.apiKey) activeApiKey = cfgData.apiKey;
+  }
+} catch (e) {
+  // Silent fallback for offline or local preview
+}
+
 const firebaseConfig = {
- apiKey:"AIzaSyCHsoP-gCnEaP7j_cTZfYoyVhnhQlq4aCs",
+  apiKey: activeApiKey,
   authDomain: "tailor-keeper.firebaseapp.com",
   projectId: "tailor-keeper",
   storageBucket: "tailor-keeper.firebasestorage.app",
@@ -591,8 +616,8 @@ let currentCustomer = null;
 let measureEditing = false;
 
 // Filter States
-let activeDateFilter = "all"; // 'all', 'month', 'quarter', 'year'
-let activeMetricFilter = "all"; // 'all', 'received', 'outstanding', 'profit'
+let activeDateFilter = "all";
+let activeMetricFilter = "all";
 
 // Helpers
 const phoneToEmail = (p) => p.replace(/\D/g, "") + "@tailor-keeper.app";
@@ -704,11 +729,9 @@ window.searchOrders = (q) => {
 };
 
 function renderDashboard() {
-  // 1. Filter by Date
   const dateCust = customers.filter(c => isDateInFilter(c.date, activeDateFilter));
   const dateBulk = bulkOrders.filter(b => isDateInFilter(b.deadline, activeDateFilter));
 
-  // 2. Aggregate Totals based on Date Filter
   let totalSales = 0, received = 0, debt = 0, profit = 0, expenses = 0;
   for (const c of dateCust) {
     totalSales += c.total; received += c.paid; debt += (c.total - c.paid); profit += c.profit; expenses += (c.cost || 0);
@@ -724,7 +747,6 @@ function renderDashboard() {
   document.getElementById("m_profit").innerText = "₦" + profit.toLocaleString();
   document.getElementById("m_exp").innerText = t("expAbbr") + ": ₦" + expenses.toLocaleString();
 
-  // 3. Highlight Selected Metric Card
   ["card_all", "card_received", "card_outstanding", "card_profit"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove("active-metric");
@@ -738,7 +760,6 @@ function renderDashboard() {
   const activeCard = document.getElementById(metricCardMap[activeMetricFilter]);
   if (activeCard) activeCard.classList.add("active-metric");
 
-  // 4. Update Filter Banner Indicator
   const banner = document.getElementById("activeFilterBanner");
   const bannerTxt = document.getElementById("activeFilterText");
   if (banner && bannerTxt) {
@@ -755,7 +776,6 @@ function renderDashboard() {
     }
   }
 
-  // 5. Apply Search & Metric Filters to Display List
   let cList = dateCust.filter(c => c.name.toLowerCase().includes(searchQuery) || c.type.toLowerCase().includes(searchQuery));
   let bList = dateBulk.filter(b => b.school.toLowerCase().includes(searchQuery) || b.type.toLowerCase().includes(searchQuery));
 

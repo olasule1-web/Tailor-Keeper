@@ -246,14 +246,10 @@ try {
   // Silent fallback for offline or local preview
 }
 
-const firebaseConfig = {
-  apiKey: activeApiKey,
-  authDomain: "tailor-keeper.firebaseapp.com",
-  projectId: "tailor-keeper",
-  storageBucket: "tailor-keeper.firebasestorage.app",
-  messagingSenderId: "791863119393",
-  appId: "1:791863119393:web:494c752e472e88dd671d60"
-};
+// Load configuration dynamically from your Vercel endpoint
+const configResponse = await fetch("/api/config");
+const firebaseConfig = await configResponse.json();
+
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
